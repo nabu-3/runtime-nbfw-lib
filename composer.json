@@ -1,0 +1,25 @@
+{
+    "type": "nabu-runtime",
+    "name": "nabu-3/runtime-nbfw-lib",
+    "description": "nabu 3 Runtime JavaScript libraries",
+    "keywords": [ "nabu-3", "nabu", "javascript", "runtime" ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/nabu-3/runtime-nbfw-lib"
+        }
+    ],
+    "version": "0.0.1",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "Rafael Gutierrez",
+            "email": "ragutimar@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "nabu-3/composer-installer-plugin": "*"
+    },
+    "prefer-stable": true
+}
