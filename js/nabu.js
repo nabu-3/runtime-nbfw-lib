@@ -1,6 +1,6 @@
 var Nabu = function() {
     if (typeof NABU_LIBRARY_PATH === "undefined") {
-        this.libraries = new Nabu.LibraryManager("/runtime/nbfw/3.0/js/lib/nb");
+        this.libraries = new Nabu.LibraryManager("/runtime/nbfw/lib/js/lib/nb");
     } else {
         this.libraries = new Nabu.LibraryManager(NABU_LIBRARY_PATH);
     }
