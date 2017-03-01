@@ -1056,7 +1056,9 @@ Nabu.UI.Form.prototype = {
 
             var query = new Nabu.Ajax.Connector(uri, method, {
                 withCredentials: true,
-                contentType: (multipart ? null : contentType),
+                contentType: (multipart ? null : contentType)
+            });
+            query.addEventListener(new Nabu.Event({
                 onLoad: function(response) {
                     if (Self.params.ajax_target !== null) {
                         var obj = document.getElementById(Self.params.ajax_target);
@@ -1073,7 +1075,7 @@ Nabu.UI.Form.prototype = {
                         });
                     }
                     $(Self.form).removeClass('sending');
-                    Self.events.fireEvent("onSubmit", Self, { "response" : response});
+                    Self.events.fireEvent("onSubmit", Self, { "response" : response.params});
                 },
                 onError: function() {
                     var obj = document.getElementById(Self.params.ajax_target);
@@ -1082,7 +1084,7 @@ Nabu.UI.Form.prototype = {
                     }
                     Self.events.fireEvent("onError", Self);
                 },
-                onUploadProgress: function(params) {
+                onUploadProgress: function(source, params) {
                     if (Self.params.ajax_on_upload_progress !== null) {
                         window[Self.params.ajax_on_upload_progress]({
                             form: Self,
@@ -1090,7 +1092,7 @@ Nabu.UI.Form.prototype = {
                         });
                     }
                 }
-            });
+            }));
 
             if (multipart) {
                 query.setPostStream(fd);
@@ -1103,16 +1105,12 @@ Nabu.UI.Form.prototype = {
 
     onSubmit: function(e)
     {
-        console.log("onSubmit");
         if (this.formaction !== null && nabu.getNavigatorName() === 'MSIE') {
             this.form.action = this.formaction;
         }
         this.formaction = null;
         if (this.params.ajax === true) {
-            console.log("Use Ajax");
-            console.log(e);
             var submit_object = this.submit_object !== null ? this.submit_object : (e.explicitOriginalTarget ? e.explicitOriginalTarget : null);
-            console.log(submit_object);
             if (submit_object === null || (submit_object.attributes['type'] && submit_object.attributes['type'].value !== 'submit')) {
                 for (var field in this.fields) {
                     var field = this.fields[field].object;

@@ -71,7 +71,9 @@ $.fn.nabuForm = function(options)
         var form = new Nabu.UI.Form(this, opts);
         var Self = this;
         form.addEventListener(new Nabu.Event({
-
+            onSubmit: function(e) {
+                $(Self).trigger("response.form.nabu", e.params);
+            }
         }));
     });
 };

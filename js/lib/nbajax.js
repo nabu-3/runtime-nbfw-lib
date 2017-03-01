@@ -195,10 +195,9 @@ Nabu.Ajax.Connector.prototype = {
                         var json = eval ("(" + this.request.responseText + ")");
                         if (json !== null) params.json = json;
                     } catch (e) {
-
+                        console.log("Error parsing JSON");
                     }
                 }
-
                 this.events.fireEvent("onLoad", this, params);
             } else {
                 if (this.events.isEventTargeted("onError"))
