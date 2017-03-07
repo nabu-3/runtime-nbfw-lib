@@ -124,6 +124,75 @@ function nbBootstrapSelects(container)
     }
 }
 
+$.fn.nabuTabLink = function(options)
+{
+    return this.each(function() {
+        var opts = $.extend({}, $.fn.nabuTabLink.defaults, options);
+        var data = $(this).data();
+        opts = $.extend({}, opts, data);
+    });
+};
+
+$.fn.nabuTabLink.defaults = {
+
+};
+
+function nbBootstrapTabLinks(container)
+{
+    var links = $(container).find('[data-toggle="nabu-tab-link"]');
+    links.on('click', function(e) {
+        var tab_control = $($(this).data('tags'));
+        if (tab_control.length > 0) {
+            console.log("click");
+            console.log($(this).attr('href'));
+            var tab_item = tab_control.find('[href="' + $(this).attr('href') + '"]');
+            if (tab_item.length > 0) {
+                console.log("Aquí");
+                e.preventDefault();
+                tab_item.tab('show');
+            }
+        }
+    });
+}
+
+$.fn.nabuMultiForm = function(options)
+{
+    return this.each(function() {
+        var opts = $.extend({}, $.fn.nabuMultiForm.defaults, options);
+        var data = $(this).data();
+        opts = $.extend({}, opts, data);
+    });
+}
+
+$.fn.nabuMultiForm.defaults = {
+
+};
+
+function nbBootstrapMultiForms(container)
+{
+    var multiforms = $(container).find('[data-toggle="nabu-multiform"]');
+    multiforms.find('[data-toggle="nabu-multiform-save"]').on('click', function(e) {
+        var multiform = $(this).closest('[data-toggle="nabu-multiform"]');
+        var forms = multiform.find('form[data-toggle="nabu-form"][data-multiform-part]');
+        if (forms.length > 0) {
+            var parts = new Array();
+            forms.each(function() {
+                if (this.nbForm) {
+                    parts.push($(this).data('multiform-part'));
+                }
+            });
+            parts.sort();
+        }
+        for (var i in parts) {
+            var form = multiform.find('form[data-toggle="nabu-form"][data-multiform-part="' + parts[i] + '"]');
+            form.each(function() {
+                console.log(this.nbForm);
+                this.nbForm.onSubmit(e.originalEvent);
+            });
+        }
+    });
+}
+
 $.fn.nabuDragAndDrop = function(options)
 {
     return this.each(function() {
@@ -255,11 +324,13 @@ function nbBootstrapToggleAll(container)
 {
     nbBootstrapDADs(container);
     nbBootstrapSelects(container);
+    nbBootstrapTabLinks(container);
     nbBootstrapInputGroups(container);
     nbBootstrapLangSelectors(container);
     nbBootstrapTables(container);
     nbBootstrapTrees(container);
     nbBootstrapForms(container);
+    nbBootstrapMultiForms(container);
 }
 
 nbBootstrapToggleAll(document);
