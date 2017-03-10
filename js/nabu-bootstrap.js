@@ -130,6 +130,19 @@ $.fn.nabuTabLink = function(options)
         var opts = $.extend({}, $.fn.nabuTabLink.defaults, options);
         var data = $(this).data();
         opts = $.extend({}, opts, data);
+        $(this).on('click', function(e) {
+            var tab_control = $($(this).data('tags'));
+            if (tab_control.length > 0) {
+                console.log("click");
+                console.log($(this).attr('href'));
+                var tab_item = tab_control.find('[href="' + $(this).attr('href') + '"]');
+                if (tab_item.length > 0) {
+                    console.log("Aquí");
+                    e.preventDefault();
+                    tab_item.tab('show');
+                }
+            }
+        });
     });
 };
 
@@ -139,20 +152,83 @@ $.fn.nabuTabLink.defaults = {
 
 function nbBootstrapTabLinks(container)
 {
-    var links = $(container).find('[data-toggle="nabu-tab-link"]');
-    links.on('click', function(e) {
-        var tab_control = $($(this).data('tags'));
-        if (tab_control.length > 0) {
-            console.log("click");
-            console.log($(this).attr('href'));
-            var tab_item = tab_control.find('[href="' + $(this).attr('href') + '"]');
-            if (tab_item.length > 0) {
-                console.log("Aquí");
-                e.preventDefault();
-                tab_item.tab('show');
-            }
-        }
+    $(container).find('[data-toggle="nabu-tab-link"]').nabuTabLink();
+}
+
+$.fn.nabuSplitPanels = function(options)
+{
+    return this.each(function() {
+        var opts = $.extend({}, $.fn.nabuSplitPanels.defaults, options);
+        var data = $(this).data();
+        opts = $.extend({}, opts, data);
+        $(this)
+            .on('mousedown', function(e) {
+                var event = e.originalEvent;
+                var target = event.target;
+                if ($(target).hasClass('split-separator')) {
+                    console.log("Mouse Down");
+                    var prev_content = $(target).prev('.split-content');
+                    if (prev_content.length > 0) {
+                        this._nabuCursorPosition = {
+                            separator: target,
+                            x: e.clientX,
+                            y: e.clientY,
+                            dx: e.clientX - target.offsetWidth,
+                            dy: e.clientY - target.offsetHeight,
+                            w: prev_content.get(0).offsetWidth,
+                            h: prev_content.get(0).offsetHeight,
+                            pressed: true
+                        };
+                    }
+                }
+            })
+            .on('mousemove', function(e) {
+                var event = e.originalEvent;
+                if (this._nabuCursorPosition && this._nabuCursorPosition.pressed) {
+                    target = this._nabuCursorPosition.separator;
+                    var prev_content = $(target).prev('.split-content');
+                    if (prev_content.length > 0) {
+                        if (opts.splitDirection==='horizontal') {
+                            var dx = this._nabuCursorPosition.w + event.clientX - this._nabuCursorPosition.x;
+                            if (dx < 0) {
+                                dx = 0;
+                            }
+                            prev_content.css({
+                                'flex-basis': dx + 'px',
+                                'flex-grow': 0,
+                                'width': dx + 'px'
+                            });
+                        }
+                    }
+                }
+            })
+            .on('mouseout', function(e) {
+                var x = e.originalEvent.clientX;
+                var y = e.originalEvent.clientY;
+
+                var dim = this.getBoundingClientRect();
+
+                if (x <= dim.left || x >= dim.right || y <= dim.top || y >= dim.bottom) {
+                    console.log(e.originalEvent);
+                    this._nabuCursorPosition.pressed = false;
+                }
+            })
+            .on('mouseup', function(e) {
+                if (this._nabuCursorPosition) {
+                    this._nabuCursorPosition.pressed = false;
+                }
+            })
+        ;
     });
+};
+
+$.fn.nabuSplitPanels.defaults = {
+    "direction": "horizontal"
+};
+
+function nbBootstrapSplitPanels(container)
+{
+    $(container).find('[data-toggle="nabu-split-panels"]').nabuSplitPanels();
 }
 
 $.fn.nabuMultiForm = function(options)
@@ -161,6 +237,26 @@ $.fn.nabuMultiForm = function(options)
         var opts = $.extend({}, $.fn.nabuMultiForm.defaults, options);
         var data = $(this).data();
         opts = $.extend({}, opts, data);
+        $(this).find('[data-toggle="nabu-multiform-save"]').on('click', function(e) {
+            var multiform = $(this).closest('[data-toggle="nabu-multiform"]');
+            var forms = multiform.find('form[data-toggle="nabu-form"][data-multiform-part]');
+            if (forms.length > 0) {
+                var parts = new Array();
+                forms.each(function() {
+                    if (this.nbForm) {
+                        parts.push($(this).data('multiform-part'));
+                    }
+                });
+                parts.sort();
+            }
+            for (var i in parts) {
+                var form = multiform.find('form[data-toggle="nabu-form"][data-multiform-part="' + parts[i] + '"]');
+                form.each(function() {
+                    console.log(this.nbForm);
+                    this.nbForm.onSubmit(e.originalEvent);
+                });
+            }
+        });
     });
 }
 
@@ -170,27 +266,7 @@ $.fn.nabuMultiForm.defaults = {
 
 function nbBootstrapMultiForms(container)
 {
-    var multiforms = $(container).find('[data-toggle="nabu-multiform"]');
-    multiforms.find('[data-toggle="nabu-multiform-save"]').on('click', function(e) {
-        var multiform = $(this).closest('[data-toggle="nabu-multiform"]');
-        var forms = multiform.find('form[data-toggle="nabu-form"][data-multiform-part]');
-        if (forms.length > 0) {
-            var parts = new Array();
-            forms.each(function() {
-                if (this.nbForm) {
-                    parts.push($(this).data('multiform-part'));
-                }
-            });
-            parts.sort();
-        }
-        for (var i in parts) {
-            var form = multiform.find('form[data-toggle="nabu-form"][data-multiform-part="' + parts[i] + '"]');
-            form.each(function() {
-                console.log(this.nbForm);
-                this.nbForm.onSubmit(e.originalEvent);
-            });
-        }
-    });
+    $(container).find('[data-toggle="nabu-multiform"]').nabuMultiForm();
 }
 
 $.fn.nabuDragAndDrop = function(options)
@@ -324,6 +400,7 @@ function nbBootstrapToggleAll(container)
 {
     nbBootstrapDADs(container);
     nbBootstrapSelects(container);
+    nbBootstrapSplitPanels(container);
     nbBootstrapTabLinks(container);
     nbBootstrapInputGroups(container);
     nbBootstrapLangSelectors(container);
@@ -333,4 +410,6 @@ function nbBootstrapToggleAll(container)
     nbBootstrapMultiForms(container);
 }
 
-nbBootstrapToggleAll(document);
+$(document).ready(function() {
+    nbBootstrapToggleAll(document);
+});
