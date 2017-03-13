@@ -164,9 +164,16 @@ $.fn.nabuSplitPanels = function(options)
         $(this)
             .on('mousedown', function(e) {
                 var event = e.originalEvent;
-                var target = event.target;
-                if ($(target).hasClass('split-separator')) {
-                    console.log("Mouse Down");
+                var target = null;
+                if ($(event.target).hasClass('split-separator')) {
+                    target = event.target;
+                } else {
+                    var closest = $(event.target).closest('.split-separator');
+                    if (closest.length > 0) {
+                        target = closest.get(0);
+                    }
+                }
+                if (target !== null) {
                     var prev_content = $(target).prev('.split-content');
                     if (prev_content.length > 0) {
                         this._nabuCursorPosition = {
@@ -180,6 +187,8 @@ $.fn.nabuSplitPanels = function(options)
                             pressed: true
                         };
                     }
+                    e.preventDefault();
+                    e.stopPropagation();
                 }
             })
             .on('mousemove', function(e) {
@@ -200,6 +209,8 @@ $.fn.nabuSplitPanels = function(options)
                             });
                         }
                     }
+                    e.preventDefault();
+                    e.stopPropagation();
                 }
             })
             .on('mouseout', function(e) {
