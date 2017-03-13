@@ -5,6 +5,21 @@ $.fn.nabuTable = function(options)
         var data = $(this).data();
         opts = $.extend({}, opts, data);
         var table = new Nabu.UI.Table(this, opts);
+        var Self = this;
+        table.addEventListener(new Nabu.Event({
+            onToolbarClick: function(e) {
+                if (e.params.action && e.params.action.length > 0) {
+                    $(Self).trigger('click.' + e.params.action + '.toolbar.table.nabu', e.params);
+                } else {
+                    $(Self).trigger('click.toolbar.table.nabu', e.params);
+                }
+            },
+            onLoadEditor: function(e) {
+                console.log('onLoadEditor');
+                console.log(e);
+                nbBootstrapToggleAll($('#' + e.params.id));
+            }
+        }));
     });
 };
 
@@ -12,6 +27,7 @@ $.fn.nabuTable.defaults = {
     "tableSize": 25,
     "api": null,
     "editor": null,
+    "editorMode": "page",
     "editButton": "line"
 };
 
@@ -220,8 +236,9 @@ $.fn.nabuSplitPanels = function(options)
                 var dim = this.getBoundingClientRect();
 
                 if (x <= dim.left || x >= dim.right || y <= dim.top || y >= dim.bottom) {
-                    console.log(e.originalEvent);
-                    this._nabuCursorPosition.pressed = false;
+                    if (this._nabuCursorPosition) {
+                        this._nabuCursorPosition.pressed = false;
+                    }
                 }
             })
             .on('mouseup', function(e) {
@@ -251,6 +268,7 @@ $.fn.nabuMultiForm = function(options)
         $(this).find('[data-toggle="nabu-multiform-save"]').on('click', function(e) {
             var multiform = $(this).closest('[data-toggle="nabu-multiform"]');
             var forms = multiform.find('form[data-toggle="nabu-form"][data-multiform-part]');
+            console.log(forms);
             if (forms.length > 0) {
                 var parts = new Array();
                 forms.each(function() {
@@ -260,6 +278,7 @@ $.fn.nabuMultiForm = function(options)
                 });
                 parts.sort();
             }
+            console.log(parts);
             for (var i in parts) {
                 var form = multiform.find('form[data-toggle="nabu-form"][data-multiform-part="' + parts[i] + '"]');
                 form.each(function() {
