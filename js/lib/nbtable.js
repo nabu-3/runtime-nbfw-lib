@@ -163,7 +163,7 @@ Nabu.UI.Table.prototype = {
                     ajax.addEventListener(new Nabu.Event({
                         onLoad: function(e) {
                             var cont_id = Self.params.editorContainer + '_'
-                                        + is_new ? 'new_' + (new Date().getTime()) + '' + Math.floor(Math.random() * 900) + 100 : id;
+                                        + (is_new ? 'new_' + (new Date().getTime()) + '' + Math.floor(Math.random() * 900) + 100 : id);
                             container.append('<div id="' + cont_id + '">' + e.params.text + '</div>');
                             Self.events.fireEvent('onLoadEditor', Self, {
                                 id: cont_id
