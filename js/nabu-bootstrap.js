@@ -4,14 +4,14 @@ $.fn.nabuTable = function(options)
         var opts = $.extend({}, $.fn.nabuTable.defaults, options);
         var data = $(this).data();
         opts = $.extend({}, opts, data);
-        var table = new Nabu.UI.Table(this, opts);
+        this.nabuTable = new Nabu.UI.Table(this, opts);
         var Self = this;
-        table.addEventListener(new Nabu.Event({
+        this.nabuTable.addEventListener(new Nabu.Event({
             onToolbarClick: function(e) {
                 if (e.params.action && e.params.action.length > 0) {
-                    $(Self).trigger('click.' + e.params.action + '.toolbar.table.nabu', e.params);
+                    $(Self).trigger('pressed.' + e.params.action + '.toolbar.table.nabu', e.params);
                 } else {
-                    $(Self).trigger('click.toolbar.table.nabu', e.params);
+                    $(Self).trigger('pressed.toolbar.table.nabu', e.params);
                 }
             },
             onLoadEditor: function(e) {

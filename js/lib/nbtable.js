@@ -90,6 +90,9 @@ Nabu.UI.Table.prototype = {
                         selection: Self.getSelectedItems()
                     });
                 }
+                e.preventDefault();
+
+                return false;
             })
         ;
 
@@ -120,7 +123,6 @@ Nabu.UI.Table.prototype = {
     doEditButtonClick: function(e)
     {
         var id = false;
-        var Self = this;
 
         if (this.params.editButton === 'line') {
             id = $(e.currentTarget).data('id');
@@ -130,16 +132,28 @@ Nabu.UI.Table.prototype = {
             throw Exception('Invalid editButton value [' + id + ']');
         }
 
-        var target = $.sprintf(this.params.editor, id);
+        this.editor(id);
+    },
+
+    editor: function(id)
+    {
+        var Self = this;
+        var is_new = (typeof(id) === 'undefined');
+        var target = is_new
+                   ? $.sprintf(this.params.editor, '')
+                   : $.sprintf(this.params.editor, id)
+        ;
 
         if (this.params.editorMode === 'ajax' && this.params.editorContainer.length > 0) {
             var container = $("#" + this.params.editorContainer);
             if (container.length > 0) {
                 container.find('[id^=' + this.params.editorContainer + '_]').addClass('hide');
             }
+
             var myst = container.find('.myst');
             myst.removeClass('hide');
-            var current = container.find('[id=' + this.params.editorContainer + '_' + id + ']');
+
+            var current = is_new ? [] : container.find('[id=' + this.params.editorContainer + '_' + id + ']');
             if (current.length > 0) {
                 current.removeClass('hide');
                 myst.addClass('hide');
@@ -148,9 +162,11 @@ Nabu.UI.Table.prototype = {
                     var ajax = new Nabu.Ajax.Connector(target, 'GET');
                     ajax.addEventListener(new Nabu.Event({
                         onLoad: function(e) {
-                            container.append('<div id="' + Self.params.editorContainer + '_' + id + '">' + e.params.text + '</div>');
+                            var cont_id = Self.params.editorContainer + '_'
+                                        + is_new ? 'new_' + (new Date().getTime()) + '' + Math.floor(Math.random() * 900) + 100 : id;
+                            container.append('<div id="' + cont_id + '">' + e.params.text + '</div>');
                             Self.events.fireEvent('onLoadEditor', Self, {
-                                id: Self.params.editorContainer + '_' + id
+                                id: cont_id
                             });
                             myst.addClass('hide');
                         },
