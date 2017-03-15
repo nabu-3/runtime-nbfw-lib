@@ -15,8 +15,6 @@ $.fn.nabuTable = function(options)
                 }
             },
             onLoadEditor: function(e) {
-                console.log('onLoadEditor');
-                console.log(e);
                 nbBootstrapToggleAll($('#' + e.params.id));
             }
         }));
@@ -51,15 +49,11 @@ $.fn.nabuTree = function(options)
         var Self = this;
         tree.addEventListener(new Nabu.Event({
             onClick: function(e) {
-                console.log('onClick');
                 $(Self).trigger('click.tree.nabu', e.params.id);
             },
             onToggle: function(e) {
-                console.log(e.params);
             },
             onCancelSelection: function(e) {
-                console.log('onCancelSelection');
-                console.log(e.params);
             }
         }));
     });
@@ -149,11 +143,8 @@ $.fn.nabuTabLink = function(options)
         $(this).on('click', function(e) {
             var tab_control = $($(this).data('tags'));
             if (tab_control.length > 0) {
-                console.log("click");
-                console.log($(this).attr('href'));
                 var tab_item = tab_control.find('[href="' + $(this).attr('href') + '"]');
                 if (tab_item.length > 0) {
-                    console.log("Aquí");
                     e.preventDefault();
                     tab_item.tab('show');
                 }
@@ -268,7 +259,6 @@ $.fn.nabuMultiForm = function(options)
         $(this).find('[data-toggle="nabu-multiform-save"]').on('click', function(e) {
             var multiform = $(this).closest('[data-toggle="nabu-multiform"]');
             var forms = multiform.find('form[data-toggle="nabu-form"][data-multiform-part]');
-            console.log(forms);
             if (forms.length > 0) {
                 var parts = new Array();
                 forms.each(function() {
@@ -278,11 +268,9 @@ $.fn.nabuMultiForm = function(options)
                 });
                 parts.sort();
             }
-            console.log(parts);
             for (var i in parts) {
                 var form = multiform.find('form[data-toggle="nabu-form"][data-multiform-part="' + parts[i] + '"]');
                 form.each(function() {
-                    console.log(this.nbForm);
                     this.nbForm.onSubmit(e.originalEvent);
                 });
             }
@@ -311,8 +299,6 @@ $.fn.nabuDragAndDrop = function(options)
                 var manager = new Nabu.DragAndDrop.DragItem(this, opts);
                 manager.addEventListener(new Nabu.Event({
                     beforeDragStart: function(source, params) {
-                        console.log("beforeDragStart");
-                        console.log("====> " + $(obj).triggerHandler('nabu.DAD.beforeDragStart'));
                         return $(obj).triggerHandler('nabu.DAD.beforeDragStart');
                     }
                 }));
