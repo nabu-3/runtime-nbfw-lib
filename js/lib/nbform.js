@@ -1044,12 +1044,20 @@ Nabu.UI.Form.prototype = {
                 }
             }
 
-            var uri = (btn_submit.attributes && btn_submit.attributes['formaction'])
-                    ? btn_submit.attributes['formaction'].value
-                    : this.form.action
-            ;
-            var method = this.form.method.toUpperCase();
+            var data = $(this.form).data();
 
+            var uri = (btn_submit.attributes && btn_submit.attributes['formaction'])
+                    ? (btn_submit.attributes['formaction'].value)
+                    : (data.actionTemplate && data.actionTemplate.length > 0
+                       ? ((data.id)
+                          ? $.sprintf(data.actionTemplate, data.id)
+                          : data.actionTemplate
+                         )
+                       : this.form.action
+                      )
+            ;
+
+            var method = this.form.method.toUpperCase();
             if (method === 'GET') {
                 uri += (uri !== null && uri.indexOf('?') >= 0 ? "&" : "?") + stream;
             }

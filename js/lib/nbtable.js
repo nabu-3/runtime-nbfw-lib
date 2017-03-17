@@ -81,7 +81,6 @@ Nabu.UI.Table.prototype = {
         var Self = this;
 
         $(this.container).find('.table-toolbar .btn')
-            .unbind('click')
             .on('click', function(e) {
                 var data = $(this).data();
                 if (data.action) {
@@ -90,9 +89,13 @@ Nabu.UI.Table.prototype = {
                         selection: Self.getSelectedItems()
                     });
                 }
-                e.preventDefault();
+                if (!data.toggle) {
+                    e.preventDefault();
+                    return false;
+                } else {
+                    return true;
+                }
 
-                return false;
             })
         ;
 
