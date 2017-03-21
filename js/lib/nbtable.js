@@ -31,9 +31,63 @@ Nabu.UI.Table.prototype = {
 
     init: function()
     {
+        this.initUI();
+        this.initPager();
         this.initEditButtonStyle();
         this.initSelectableCheckbox();
         this.initToolbar();
+    },
+
+    initUI: function()
+    {
+        var Self = this;
+
+        $(window).resize(function() {
+            cells = $(Self.container).find('tbody tr:first').children();
+            widths = cells.map(function() {
+                return $(this).width();
+            }).get();
+
+            $(Self.container).find('thead tr').children().each(function (i, v) {
+                $(v).width(widths[i]);
+            });
+        }).resize();
+    },
+
+    initPager: function()
+    {
+        console.log(this.params);
+        if (this.params.tablePager && this.params.tableSize > 0) {
+            var pager = $(this.container).find('.table-pager');
+            var rows = $(this.container).find('tbody > tr');
+            console.log(rows.length);
+            if (pager.length === 0) {
+                var html =
+                    "<div class=\"table-pager hide\">" +
+                        "<nav aria-label=\"Page navigation\">" +
+                            "<ul class=\"pagination\">" +
+                                "<li><a href=\"#\" aria-label=\"Previous\"><span aria-hidden=\"true\">&laquo;</span></a></li>" +
+                                "<li><a href=\"#\">1</a></li>" +
+                                "<li><a href=\"#\">2</a></li>" +
+                                "<li><a href=\"#\">3</a></li>" +
+                                "<li><a href=\"#\">4</a></li>" +
+                                "<li><a href=\"#\">5</a></li>" +
+                                "<li><a href=\"#\" aria-label=\"Next\"><span aria-hidden=\"true\">&raquo;</span></a></li>" +
+                            "</ul>" +
+                        "</nav>" +
+                    "</div>"
+                ;
+                $(this.container).append(html);
+                pager = $(this.container).find('.table-pager');
+            } else {
+                pager.addClass("hide");
+            }
+
+            console.log(pager);
+            if (this.params.tableSize < rows.length) {
+                pager.removeClass("hide");
+            }
+        }
     },
 
     initEditButtonStyle: function()

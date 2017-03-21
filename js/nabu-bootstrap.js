@@ -22,7 +22,8 @@ $.fn.nabuTable = function(options)
 };
 
 $.fn.nabuTable.defaults = {
-    "tableSize": 25,
+    "tablePager": true,
+    "tableSize": 10,
     "api": null,
     "editor": null,
     "editorMode": "page",
