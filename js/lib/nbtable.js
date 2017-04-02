@@ -14,6 +14,12 @@ Nabu.UI.Table = function(object, params)
     this.container = object;
     this.params = params;
 
+    try {
+        this.table = $(object).find('table').get(0);
+    } catch (e) {
+        this.table = null;
+    }
+
     this.init();
 };
 
@@ -43,8 +49,8 @@ Nabu.UI.Table.prototype = {
         var Self = this;
 
         $(window).resize(function() {
-            cells = $(Self.container).find('tbody tr:first').children();
-            widths = cells.map(function() {
+            var cells = $(Self.container).find('tbody tr[data-type="row"]:first').children();
+            var widths = cells.map(function() {
                 return $(this).width();
             }).get();
 
@@ -56,11 +62,9 @@ Nabu.UI.Table.prototype = {
 
     initPager: function()
     {
-        console.log(this.params);
         if (this.params.tablePager && this.params.tableSize > 0) {
             var pager = $(this.container).find('.table-pager');
             var rows = $(this.container).find('tbody > tr');
-            console.log(rows.length);
             if (pager.length === 0) {
                 var html =
                     "<div class=\"table-pager hide\">" +
@@ -83,7 +87,6 @@ Nabu.UI.Table.prototype = {
                 pager.addClass("hide");
             }
 
-            console.log(pager);
             if (this.params.tableSize < rows.length) {
                 pager.removeClass("hide");
             }
@@ -195,13 +198,22 @@ Nabu.UI.Table.prototype = {
     editor: function(id)
     {
         var Self = this;
-        var is_new = (typeof(id) === 'undefined');
+        var is_new = ((typeof id) === 'undefined');
+
         var target = is_new
                    ? $.sprintf(this.params.editor, '')
                    : $.sprintf(this.params.editor, id)
         ;
 
         if (this.params.editorMode === 'ajax' && this.params.editorContainer.length > 0) {
+
+            if (is_new) {
+                var row_id =  'new_' + (new Date().getTime()) + '' + Math.floor(Math.random() * 900) + 100;
+                this.appendRow(row_id);
+                this.initSelectableCheckbox();
+                this.initEditButtonStyle();
+            }
+
             var container = $("#" + this.params.editorContainer);
             if (container.length > 0) {
                 container.find('[id^=' + this.params.editorContainer + '_]').addClass('hide');
@@ -220,10 +232,11 @@ Nabu.UI.Table.prototype = {
                     ajax.addEventListener(new Nabu.Event({
                         onLoad: function(e) {
                             var cont_id = Self.params.editorContainer + '_'
-                                        + (is_new ? 'new_' + (new Date().getTime()) + '' + Math.floor(Math.random() * 900) + 100 : id);
+                                        + (is_new ? row_id : id);
                             container.append('<div id="' + cont_id + '">' + e.params.text + '</div>');
                             Self.events.fireEvent('onLoadEditor', Self, {
-                                id: cont_id
+                                id: (is_new ? row_id : id),
+                                container_id: cont_id
                             });
                             myst.addClass('hide');
                         },
@@ -239,6 +252,37 @@ Nabu.UI.Table.prototype = {
         }
 
         return false;
+    },
+
+    appendRow: function(row_id)
+    {
+        if (this.table !== null) {
+            var row = this.table.insertRow(this.table.rows.length);
+            $(row).attr('data-id', row_id);
+            if (this.params.editButton==='line') {
+                $(row).addClass('btn-edit-line');
+            }
+            if (this.table.tHead.rows.length > 0) {
+                var head_row = this.table.tHead.rows[0];
+                for (var i=0; i < head_row.cells.length; i++) {
+                    var head_cell = head_row.cells[i];
+                    var cell = row.insertCell();
+                    if (head_cell.hasAttribute('data-toggle') && head_cell.getAttribute('data-toggle') === 'table-selectable') {
+                        cell.setAttribute('data-toggle', 'table-selectable');
+                        cell.innerHTML = "<input type=\"checkbox\">";
+                    }
+                    if (head_cell.hasAttribute('class')) {
+                        cell.setAttribute('class', head_cell.getAttribute('class'));
+                    }
+                    if (head_cell.hasAttribute('data-name')) {
+                        cell.setAttribute('data-name', head_cell.getAttribute('data-name'));
+                    }
+                    if (head_cell.hasAttribute('data-align')) {
+                        $(cell).addClass(head_cell.getAttribute('data-align'));
+                    }
+                }
+            }
+        }
     },
 
     doSelectableHeadCheckbox: function(e)
@@ -288,6 +332,37 @@ Nabu.UI.Table.prototype = {
         ;
 
         return selected.length > 0 ? selected : null;
+    },
+
+    connectForm: function(table_row_id, form_id)
+    {
+        var $form = $(form_id);
+        if ($form.length === 1) {
+            var form = $form.get(0);
+            if (form.nabuForm) {
+                var Self = this;
+                form.nabuForm.addEventListener(new Nabu.Event({
+                    onFieldChange: function(e, params) {
+                        var head_cell = $(Self.table).find("thead th[data-name=\"" + e.params.field + "\"]");
+                        if (head_cell.length === 1) {
+                            var text = e.params.value;
+                            var head_lookup = head_cell.data('lookup');
+                            if ((typeof head_lookup) !== "undefined") {
+                                text = head_lookup[e.params.value];
+                            }
+                            $(Self.table)
+                                .find("tbody tr[data-id=\"" + table_row_id + "\"] td[data-name=\"" + e.params.field + "\"]")
+                                .text(text)
+                            ;
+                        }
+                    }
+                }));
+            } else {
+                console.log("Nabu.Form object not found");
+            }
+        } else {
+            console.log("More than one forms found with same identifier");
+        }
     }
 };
 

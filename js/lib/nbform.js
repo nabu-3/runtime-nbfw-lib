@@ -54,7 +54,7 @@ Nabu.UI.Form.prototype = {
 
         if (frm) {
             this.form = frm;
-            frm.nbForm = this;
+            frm.nabuForm = this;
             if (!recall) {
                 $(frm).on('submit', function(e) {
                     return Self.onSubmit(e.originalEvent);
@@ -88,7 +88,7 @@ Nabu.UI.Form.prototype = {
                     if (append_field !== null) {
                         var key = (obj['name'] && obj['name'].length > 0 ? obj['name'] : field);
                         if (recall !== true) {
-                            obj.nbForm = false;
+                            obj.nabuForm = false;
                         }
                         this.appendField(key, obj);
                     }
@@ -103,18 +103,18 @@ Nabu.UI.Form.prototype = {
 
         if (obj instanceof NodeList) {
             for (i = 0; i < obj.length; i++)
-                if (!obj.nbForm) {
+                if (!obj.nabuForm) {
                     this.connectFieldObject(obj[i]);
                     conn = true;
                 }
         } else if (obj instanceof HTMLCollection) {
             for (i = 0; i < obj.length; i++)
-                if (!obj.nbForm) {
+                if (!obj.nabuForm) {
                     this.connectFieldObject(obj.item(i));
                     conn = true;
                 }
         } else {
-            if (!obj.nbForm) {
+            if (!obj.nabuForm) {
                 this.connectFieldObject(obj);
                 conn = true;
             }
@@ -151,7 +151,7 @@ Nabu.UI.Form.prototype = {
     connectFieldObject: function(obj)
     {
         var Self = this;
-        obj.nbForm = this;
+        obj.nabuForm = this;
 
         if (obj instanceof HTMLSelectElement) {
             $(obj).on('change', function(e) { return Self.onChangeField(e.originalEvent)});
@@ -1158,6 +1158,11 @@ Nabu.UI.Form.prototype = {
             this.validateForm();
         }
 
+        this.events.fireEvent('onFieldChange', this, {
+            'field': field.name,
+            'value': $(field).val()
+        });
+
         return (trigger!==0);
     },
 
@@ -1202,6 +1207,19 @@ Nabu.UI.Form.prototype = {
             if (field.attributes['formaction']) this.formaction = field.attributes['formaction'].value;
             this.validateSameFields(field.name);
             this.validateForm();
+
+            if (field.attributes['type']) {
+                var ftype = field.attributes['type'].value.toLowerCase();
+                console.log(ftype);
+                if (ftype === 'checkbox') {
+                    console.log(field.attributes);
+                    console.log(field.name);
+                    this.events.fireEvent('onFieldChange', this, {
+                        'field': field.name,
+                        'value': field.checked ? $(field).val() : $(field).data('value-unchecked')
+                    });
+                }
+            }
 
             field.inClickForm = false;
         }

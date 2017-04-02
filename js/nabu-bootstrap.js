@@ -15,7 +15,8 @@ $.fn.nabuTable = function(options)
                 }
             },
             onLoadEditor: function(e) {
-                nbBootstrapToggleAll($('#' + e.params.id));
+                nbBootstrapToggleAll($('#' + e.params.container_id));
+                Self.nabuTable.connectForm(e.params.id, '#' + e.params.container_id + ' form');
             }
         }));
     });
@@ -215,6 +216,7 @@ $.fn.nabuSplitPanels = function(options)
                                 'flex-grow': 0,
                                 'width': dx + 'px'
                             });
+                            $(window).resize();
                         }
                     }
                     e.preventDefault();
@@ -263,7 +265,7 @@ $.fn.nabuMultiForm = function(options)
             if (forms.length > 0) {
                 var parts = new Array();
                 forms.each(function() {
-                    if (this.nbForm) {
+                    if (this.nabuForm) {
                         parts.push($(this).data('multiform-part'));
                     }
                 });
@@ -272,7 +274,7 @@ $.fn.nabuMultiForm = function(options)
             for (var i in parts) {
                 var form = multiform.find('form[data-toggle="nabu-form"][data-multiform-part="' + parts[i] + '"]');
                 form.each(function() {
-                    this.nbForm.onSubmit(e.originalEvent);
+                    this.nabuForm.onSubmit(e.originalEvent);
                 });
             }
         });
@@ -425,6 +427,10 @@ function nbBootstrapToggleAll(container)
     nbBootstrapTrees(container);
     nbBootstrapForms(container);
     nbBootstrapMultiForms(container);
+
+    $(container).find('[data-toggle="tab"]').on('shown.bs.tab', function() {
+        $(window).resize();
+    });
 }
 
 $(document).ready(function() {
