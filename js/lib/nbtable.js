@@ -226,6 +226,8 @@ Nabu.UI.Table.prototype = {
             if (current.length > 0) {
                 current.removeClass('hide');
                 myst.addClass('hide');
+                $(this.table).find('tr').removeClass('editing');
+                $(this.table).find('tr[data-id="' + id + '"]').addClass('editing');
             } else {
                 nabu.loadLibrary('Ajax', function() {
                     var ajax = new Nabu.Ajax.Connector(target, 'GET');
@@ -234,6 +236,8 @@ Nabu.UI.Table.prototype = {
                             var cont_id = Self.params.editorContainer + '_'
                                         + (is_new ? row_id : id);
                             container.append('<div id="' + cont_id + '">' + e.params.text + '</div>');
+                            $(Self.table).find('tr').removeClass('editing');
+                            $(Self.table).find('tr[data-id="' + (is_new ? row_id : id) + '"]').addClass('editing');
                             Self.events.fireEvent('onLoadEditor', Self, {
                                 id: (is_new ? row_id : id),
                                 container_id: cont_id
