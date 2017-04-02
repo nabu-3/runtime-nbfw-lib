@@ -212,6 +212,8 @@ Nabu.UI.Table.prototype = {
                 this.appendRow(row_id);
                 this.initSelectableCheckbox();
                 this.initEditButtonStyle();
+            } else {
+                this.editRow(id);
             }
 
             var container = $("#" + this.params.editorContainer);
@@ -283,6 +285,34 @@ Nabu.UI.Table.prototype = {
                     }
                     if (head_cell.hasAttribute('data-align')) {
                         $(cell).addClass(head_cell.getAttribute('data-align'));
+                    }
+                    if (head_cell.hasAttribute('data-is-id') && head_cell.getAttribute('data-is-id') === 'true') {
+                        $(cell).html('<i class="fa fa-plus text-danger edited pull-left"></i>');
+                    }
+                }
+            }
+        }
+    },
+
+    editRow: function(row_id)
+    {
+        console.log("editRow");
+        if (this.table !== null) {
+            var body_row = $(this.table).find('tbody tr[data-id="' + row_id + '"]').get(0);
+            var head_row = this.table.tHead.rows[0];
+            console.log(row_id);
+            console.log(body_row);
+            console.log(head_row);
+            if (body_row.cells.length === head_row.cells.length) {
+                for (var i = 0; i < head_row.cells.length; i++) {
+                    var head_cell = head_row.cells[i];
+                    if ($(head_cell).data('is-id')) {
+                        var body_cell = body_row.cells[i];
+                        if ($(body_cell).find('.edited').length === 0) {
+                            $('<i class="fa fa-pencil text-danger edited pull-left"></i>')
+                                .insertBefore($(body_cell).children().get(0))
+                            ;
+                        }
                     }
                 }
             }

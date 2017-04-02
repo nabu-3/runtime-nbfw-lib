@@ -431,6 +431,28 @@ function nbBootstrapToggleAll(container)
     $(container).find('[data-toggle="tab"]').on('shown.bs.tab', function() {
         $(window).resize();
     });
+
+    $(container).find('.box [data-toggle="box-maximize"]').on('click', function() {
+        var box = $(this).closest('.box');
+        if (box.length === 1) {
+            $(this).addClass('hide');
+            $('body').addClass('modal-open');
+            $('body').append('<div class="modal-backdrop fade in"></div>');
+            box.addClass('maximized');
+            $(this).siblings('[data-toggle="box-restore"]').removeClass('hide');
+        }
+    });
+
+    $(container).find('.box [data-toggle="box-restore"]').on('click', function() {
+        var box = $(this).closest('.box');
+        if (box.length === 1) {
+            $(this).addClass('hide');
+            $('body .modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+            box.removeClass('maximized');
+            $(this).siblings('[data-toggle="box-maximize"]').removeClass('hide');
+        }
+    });
 }
 
 $(document).ready(function() {
