@@ -83,6 +83,10 @@ $.fn.nabuForm = function(options)
         var form = new Nabu.UI.Form(this, opts);
         var Self = this;
         form.addEventListener(new Nabu.Event({
+            onBeforeSubmit: function(e) {
+                console.log('onBeforeSubmit');
+                return $(Self).trigger("beforesubmit.form.nabu");
+            },
             onSubmit: function(e) {
                 $(Self).trigger("response.form.nabu", e.params);
             }
@@ -260,6 +264,11 @@ $.fn.nabuMultiForm = function(options)
         var data = $(this).data();
         opts = $.extend({}, opts, data);
         $(this).find('[data-toggle="nabu-multiform-save"]').on('click', function(e) {
+            if (CKEDITOR) {
+                for(var name in CKEDITOR.instances) {
+                    CKEDITOR.instances[name].updateElement();
+                }
+            }
             var multiform = $(this).closest('[data-toggle="nabu-multiform"]');
             var forms = multiform.find('form[data-toggle="nabu-form"][data-multiform-part]');
             if (forms.length > 0) {
