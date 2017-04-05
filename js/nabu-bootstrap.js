@@ -84,7 +84,6 @@ $.fn.nabuForm = function(options)
         var Self = this;
         form.addEventListener(new Nabu.Event({
             onBeforeSubmit: function(e) {
-                console.log('onBeforeSubmit');
                 return $(Self).trigger("beforesubmit.form.nabu");
             },
             onSubmit: function(e) {

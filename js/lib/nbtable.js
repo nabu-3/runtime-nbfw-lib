@@ -238,6 +238,14 @@ Nabu.UI.Table.prototype = {
                             var cont_id = Self.params.editorContainer + '_'
                                         + (is_new ? row_id : id);
                             container.append('<div id="' + cont_id + '">' + e.params.text + '</div>');
+                            if (is_new) {
+                                var multiform=container.find('form[data-multiform-part]');
+                                multiform.each(function() {
+                                    var part = $(this).data('multiform-part');
+                                    $(this).attr('data-multiform-part', $.sprintf(part, row_id));
+                                    $(this).data('multiform-part', $.sprintf(part, row_id));
+                                });
+                            }
                             $(Self.table).find('tr').removeClass('editing');
                             $(Self.table).find('tr[data-id="' + (is_new ? row_id : id) + '"]').addClass('editing');
                             Self.events.fireEvent('onLoadEditor', Self, {
@@ -296,13 +304,9 @@ Nabu.UI.Table.prototype = {
 
     editRow: function(row_id)
     {
-        console.log("editRow");
         if (this.table !== null) {
             var body_row = $(this.table).find('tbody tr[data-id="' + row_id + '"]').get(0);
             var head_row = this.table.tHead.rows[0];
-            console.log(row_id);
-            console.log(body_row);
-            console.log(head_row);
             if (body_row.cells.length === head_row.cells.length) {
                 for (var i = 0; i < head_row.cells.length; i++) {
                     var head_cell = head_row.cells[i];

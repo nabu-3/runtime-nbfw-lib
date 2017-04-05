@@ -1113,16 +1113,9 @@ Nabu.UI.Form.prototype = {
 
     onSubmit: function(e)
     {
-        console.log("Step 1");
         if (this.events.isEventTargeted('onBeforeSubmit')) {
-            console.log("Step 2");
-            if (!this.events.fireEvent('onBeforeSubmit', this)) {
-                console.log("Step 3");
-                return false;
-            }
-            console.log("Step 4");
+            this.events.fireEvent('onBeforeSubmit', this)
         }
-        console.log("Step 5");
 
         if (this.formaction !== null && nabu.getNavigatorName() === 'MSIE') {
             this.form.action = this.formaction;
