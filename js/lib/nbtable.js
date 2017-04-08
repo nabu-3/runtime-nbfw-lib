@@ -125,7 +125,7 @@ Nabu.UI.Table.prototype = {
             })
         ;
 
-        $(this.container).find('tbody th[data-toggle="table-selectable"] input[type="checkbox"]')
+        $(this.container).find('tbody td[data-toggle="table-selectable"] input[type="checkbox"]')
             .unbind('click')
             .on('click', function(e) {
                 return Self.doSelectableBodyCheckbox(e);
@@ -327,7 +327,7 @@ Nabu.UI.Table.prototype = {
     {
         e.stopPropagation();
 
-        var checks = $(this.container).find('tbody th[data-toggle="table-selectable"] input[type="checkbox"]');
+        var checks = $(this.container).find('tbody td[data-toggle="table-selectable"] input[type="checkbox"]');
         var head = $(e.currentTarget);
         if (e.currentTarget.checked) {
             checks.prop('checked', true);
@@ -345,8 +345,8 @@ Nabu.UI.Table.prototype = {
         e.stopPropagation();
 
         var head = $(this.container).find('thead th[data-toggle="table-selectable"] input[type="checkbox"]');
-        var total = $(this.container).find('tbody th[data-toggle="table-selectable"] input[type="checkbox"]').length;
-        var checks = $(this.container).find('tbody th[data-toggle="table-selectable"] input[type="checkbox"]:checked').length;
+        var total = $(this.container).find('tbody td[data-toggle="table-selectable"] input[type="checkbox"]').length;
+        var checks = $(this.container).find('tbody td[data-toggle="table-selectable"] input[type="checkbox"]:checked').length;
 
         head.prop('checked', (total === checks));
 
@@ -360,7 +360,7 @@ Nabu.UI.Table.prototype = {
         var selected = [];
 
         $(this.container)
-            .find('tbody th[data-toggle="table-selectable"] input[type="checkbox"]:checked')
+            .find('tbody td[data-toggle="table-selectable"] input[type="checkbox"]:checked')
             .closest('tr')
             .each(function(e) {
                 if ($(this).data('id')) {
