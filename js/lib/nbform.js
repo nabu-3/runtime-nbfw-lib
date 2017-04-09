@@ -308,7 +308,7 @@ Nabu.UI.Form.prototype = {
         switch (type) {
             case 'active': this.applyMask(obj, {enabled: status, visible: null}); break;
             case 'visible': this.applyMask(obj, {enabled: null, visible: status}); break;
-            default: throw "Unknown formfollow type [" + type + "]";
+            default: throw "Unknown data-form-follow type [" + type + "]";
         }
 
         return true;
@@ -347,9 +347,9 @@ Nabu.UI.Form.prototype = {
     validateFieldPart: function(field)
     {
         var trigger = 3;
-        var mandatory = (field.attributes && field.attributes['data-mandatory'] ? field.attributes['data-mandatory'].value : 'none');
-        var rule = (field.attributes && field.attributes['data-rule'] ? field.attributes['data-rule'].value : 'none');
-        var rule_param = (field.attributes && field.attributes['data-rule-param'] ? field.attributes['data-rule-param'].value : null);
+        var mandatory = (field.attributes && field.attributes['data-form-mandatory'] ? field.attributes['data-form-mandatory'].value : 'none');
+        var rule = (field.attributes && field.attributes['data-form-rule'] ? field.attributes['data-form-rule'].value : 'none');
+        var rule_param = (field.attributes && field.attributes['data-form-rule-param'] ? field.attributes['data-form-rule-param'].value : null);
         var value = field.value;
         if (nabu.getNavigatorName() === 'MSIE' && field.attributes['placeholder'] && field.attributes['placeholder'].value === value) value = '';
 
@@ -409,7 +409,7 @@ Nabu.UI.Form.prototype = {
         for (var key in this.fields) {
             if (key !== name) {
                 field = this.fields[key];
-                var rule = (field.object.attributes && field.object.attributes['data-rule'] ? field.object.attributes['data-rule'].value : 'none');
+                var rule = (field.object.attributes && field.object.attributes['data-form-rule'] ? field.object.attributes['data-form-rule'].value : 'none');
                 if (rule !== null && rule !== 'none') {
                     var parts = rule.split(":");
                     if (parts!==null && parts.length === 2 && parts[0] === 'same' && parts[1] === name) {
@@ -453,19 +453,19 @@ Nabu.UI.Form.prototype = {
                 field = this.fields[key];
                 if (field.object instanceof NodeList || field.object instanceof Array) {
                     for (i = 0; i < field.object.length; i++) {
-                        if (field.object[i].attributes && field.object[i].attributes !== null && field.object[i].attributes['formfollow'] && this.isAvailableField(key)) {
-                            this.fieldFollowsForm(field.object[i], field.object[i].attributes['formfollow'].value, form.validate);
+                        if (field.object[i].attributes && field.object[i].attributes !== null && field.object[i].attributes['data-form-follow'] && this.isAvailableField(key)) {
+                            this.fieldFollowsForm(field.object[i], field.object[i].attributes['data-form-follow'].value, this.validate);
                         }
                     }
                 } else if (field.object instanceof HTMLCollection) {
                     for (i = 0; i < field.object.length; i++) {
-                        if (field.object.item(i).attributes && field.object.item(i).attributes !== null && field.object.item(i).attributes['formfollow'] && this.isAvailableField(key)) {
-                            this.fieldFollowsForm(field.object.item(i), field.object.item(i).attributes['formfollow'].value, form.validate);
+                        if (field.object.item(i).attributes && field.object.item(i).attributes !== null && field.object.item(i).attributes['data-form-follow'] && this.isAvailableField(key)) {
+                            this.fieldFollowsForm(field.object.item(i), field.object.item(i).attributes['data-form-follow'].value, this.validate);
                         }
                     }
                 } else {
-                    if (field.object.attributes !== null && field.object.attributes['formfollow'] && this.isAvailableField(key)) {
-                        this.fieldFollowsForm(field.object, field.object.attributes['formfollow'].value, this.validate);
+                    if (field.object.attributes !== null && field.object.attributes['data-form-follow'] && this.isAvailableField(key)) {
+                        this.fieldFollowsForm(field.object, field.object.attributes['data-form-follow'].value, this.validate);
                     }
                 }
             }

@@ -323,6 +323,15 @@ Nabu.UI.Table.prototype = {
         }
     },
 
+    getCell: function(row_id, col_name)
+    {
+        if (this.table !== null) {
+            return $(this.table).find('tbody tr[data-id="' + row_id + '"] td[data-name="' + col_name + '"]').html();
+        }
+
+        return null;
+    },
+
     doSelectableHeadCheckbox: function(e)
     {
         e.stopPropagation();
