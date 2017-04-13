@@ -1027,7 +1027,9 @@ Nabu.UI.Form.prototype = {
                                     }
                                 } else*/ if (t !== 'submit' && t !== 'image') {
                                     if ((t !== 'checkbox' && t !== 'radio') || obj.checked) {
+                                        console.log(this.getFieldValue(i));
                                         stream += (stream.length === 0 ? "" : "&") + i + "=" + encodeURIComponent(this.getFieldValue(i));
+                                        console.log(stream);
                                     }
                                 }
                             }
