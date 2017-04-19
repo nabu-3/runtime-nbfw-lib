@@ -87,6 +87,17 @@ $.fn.nabuForm = function(options)
                 return $(Self).trigger("beforesubmit.form.nabu");
             },
             onSubmit: function(e) {
+                console.log(e);
+                var data = $(Self).data();
+                if (data.actionTemplate && data.actionTemplate.length > 0) {
+                    var field = (data.actionTemplateField && data.actionTemplateField.length > 0
+                              ? data.actionTemplateField
+                              : 'id'
+                    );
+                    if (e.params.response.json.data[field]) {
+                        $(Self).data('id', e.params.response.json.data[field]);
+                    }
+                }
                 $(Self).trigger("response.form.nabu", e.params);
             }
         }));
@@ -262,30 +273,32 @@ $.fn.nabuMultiForm = function(options)
         var opts = $.extend({}, $.fn.nabuMultiForm.defaults, options);
         var data = $(this).data();
         opts = $.extend({}, opts, data);
-        $(this).find('[data-toggle="nabu-multiform-save"]').on('click', function(e) {
-            if (CKEDITOR) {
-                for(var name in CKEDITOR.instances) {
-                    CKEDITOR.instances[name].updateElement();
-                }
-            }
-            var multiform = $(this).closest('[data-toggle="nabu-multiform"]');
-            var forms = multiform.find('form[data-toggle="nabu-form"][data-multiform-part]');
-            if (forms.length > 0) {
-                var parts = new Array();
-                forms.each(function() {
-                    if (this.nabuForm) {
-                        parts.push($(this).data('multiform-part'));
+        $(this).find('[data-toggle="nabu-multiform-save"]')
+            .on('click', function(e) {
+                if (CKEDITOR) {
+                    for(var name in CKEDITOR.instances) {
+                        CKEDITOR.instances[name].updateElement();
                     }
-                });
-                parts.sort();
-            }
-            for (var i in parts) {
-                var form = multiform.find('form[data-toggle="nabu-form"][data-multiform-part="' + parts[i] + '"]');
-                form.each(function() {
-                    this.nabuForm.onSubmit(e.originalEvent);
-                });
-            }
-        });
+                }
+                var multiform = $(this).closest('[data-toggle="nabu-multiform"]');
+                var forms = multiform.find('form[data-toggle="nabu-form"][data-multiform-part]');
+                if (forms.length > 0) {
+                    var parts = new Array();
+                    forms.each(function() {
+                        if (this.nabuForm) {
+                            parts.push($(this).data('multiform-part'));
+                        }
+                    });
+                    parts.sort();
+                }
+                for (var i in parts) {
+                    var form = multiform.find('form[data-toggle="nabu-form"][data-multiform-part="' + parts[i] + '"]');
+                    form.each(function() {
+                        this.nabuForm.onSubmit(e.originalEvent);
+                    });
+                }
+            })
+        ;
     });
 }
 

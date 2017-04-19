@@ -1053,7 +1053,7 @@ Nabu.UI.Form.prototype = {
                     : (data.actionTemplate && data.actionTemplate.length > 0
                        ? ((data.id)
                           ? $.sprintf(data.actionTemplate, data.id)
-                          : data.actionTemplate
+                          : $.sprintf(data.actionTemplate, '')
                          )
                        : this.form.action
                       )
