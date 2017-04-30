@@ -359,48 +359,56 @@ function nbBootstrapDADs(container)
 
 $.fn.nabuLangSelector = function(options)
 {
-    return this.each(function() {
-        var opts = $.extend({}, $.fn.nabuLangSelector.defaults, options);
-        var data = $(this).data();
-        opts = $.extend(opts, data);
-        opts.container = this;
-
-
-        var checkLangs = function()
-        {
-            var count = $(opts.container).find('[lang].active').length;
-            $(opts.container).find('li[lang]').each(function() {
-                var lang = $(this).attr('lang');
-                if ($(this).hasClass('active')) {
-                    $('[data-toggle="toggable-lang"] [lang="' + lang + '"]').removeClass('hide');
-                    if (count === 1) {
-                        $('[data-toggle="toggable-lang"] .flag[lang="' + lang + '"]').addClass('hide');
-                    }
-                } else {
-                    $('[data-toggle="toggable-lang"] [lang="' + lang + '"]').addClass('hide');
-                }
-            });
-        };
-
-        checkLangs();
-
-        $(this).find('li[lang] > a').on('click', function() {
-            var li = $(this).closest('[lang]');
-            var count = $(opts.container).find('[lang].active').length;
-            if (li.hasClass('active')) {
-                if (count > 1) {
-                    li.removeClass('active');
-                    $(this).removeClass('btn-default').addClass('btn-link');
+    var checkLangs = function(opts)
+    {
+        var count = $(opts.container).find('[lang].active').length;
+        $(opts.container).find('li[lang]').each(function() {
+            var lang = $(this).attr('lang');
+            if ($(this).hasClass('active')) {
+                $('[data-toggle="toggable-lang"] [lang="' + lang + '"]').removeClass('hide');
+                if (count === 1) {
+                    $('[data-toggle="toggable-lang"] .flag[lang="' + lang + '"]').addClass('hide');
                 }
             } else {
-                if (count < 2) {
-                    li.addClass('active');
-                    $(this).removeClass('btn-link').addClass('btn-default');
-                }
+                $('[data-toggle="toggable-lang"] [lang="' + lang + '"]').addClass('hide');
             }
-            checkLangs();
         });
-    });
+    };
+
+    if (typeof(options) === 'string') {
+        if (options === 'refresh') {
+            this.each(function() {
+                checkLangs(this.options);
+            });
+        }
+    } else {
+        return this.each(function() {
+            var opts = $.extend({}, $.fn.nabuLangSelector.defaults, options);
+            var data = $(this).data();
+            opts = $.extend(opts, data);
+            opts.container = this;
+            this.options = opts;
+
+            checkLangs(opts);
+
+            $(this).find('li[lang] > a').on('click', function() {
+                var li = $(this).closest('[lang]');
+                var count = $(opts.container).find('[lang].active').length;
+                if (li.hasClass('active')) {
+                    if (count > 1) {
+                        li.removeClass('active');
+                        $(this).removeClass('btn-default').addClass('btn-link');
+                    }
+                } else {
+                    if (count < 2) {
+                        li.addClass('active');
+                        $(this).removeClass('btn-link').addClass('btn-default');
+                    }
+                }
+                checkLangs(opts);
+            });
+        });
+    }
 }
 
 $.fn.nabuLangSelector.defaults = {
