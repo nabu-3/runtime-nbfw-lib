@@ -1,7 +1,7 @@
 {
     "type": "nabu-runtime",
     "name": "nabu-3/runtime-nbfw-lib",
-    "description": "nabu 3 Runtime JavaScript libraries",
+    "description": "nabu-3 Runtime JavaScript libraries",
     "keywords": [ "nabu-3", "nabu", "javascript", "runtime" ],
     "version": "3.0.3",
     "license": "Apache-2.0",
