@@ -107,6 +107,7 @@ $.fn.nabuForm = function(options)
 $.fn.nabuForm.defaults = {
     evaluate: false,
     validation: false,
+    reflection: null,
     ajax: false,
     ajax_target: null,
     ajax_on_upload_progress: null,

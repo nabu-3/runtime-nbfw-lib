@@ -499,13 +499,9 @@ Nabu.UI.Form.prototype = {
     setFieldStatusClassInternal: function (field, trigger)
     {
         var ref = null;
+
         if (!(field instanceof NodeList) && !(field instanceof HTMLCollection) && !(field instanceof Array)) {
-
-            if (field.attributes['data-reflection'])
-                ref = field.attributes['data-reflection'].value;
-            else
-                ref = this.params.reflection;
-
+            ref = this.params.reflection;
             if (ref !== null) {
                 var ptr = $(field).closest('.' + ref);
                 if (ptr.length > 0) {
@@ -514,17 +510,14 @@ Nabu.UI.Form.prototype = {
             }
         }
 
-        var cls = field.className;
-        if ((typeof cls !== 'undefined') && cls !== null && cls.length > 0) {
-            $(field).removeClass(this.success_class);
-            $(field).removeClass(this.warning_class);
-            $(field).removeClass(this.error_class);
-        }
+        $(field).removeClass(this.params.reflectionSuccess);
+        $(field).removeClass(this.params.reflectionWarning);
+        $(field).removeClass(this.params.reflectionError);
 
         switch (trigger) {
-            case 0: $(field).addClass(this.error_class); break;
-            case 1: $(field).addClass(this.warning_class); break;
-            case 2: $(field).addClass(this.success_class); break;
+            case 0: $(field).addClass(this.params.reflectionError); break;
+            case 1: $(field).addClass(this.params.reflectionWarning); break;
+            case 2: $(field).addClass(this.params.reflectionSuccess); break;
         }
     },
 
