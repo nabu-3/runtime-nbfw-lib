@@ -384,7 +384,7 @@ Nabu.UI.Form.prototype = {
                     if (parts.length === 2) {
                         var reflex = this.getFieldValue(parts[1]);
                         if ((reflex===null || reflex===false || reflex==='') && (value===null || value===false || value==='')) {
-                            trigger = (mandatory ? 0 : 1);
+                            trigger = (mandatory === 'yes' ? 0 : 1);
                         } else if (reflex === value) {
                             trigger = 2;
                         }
