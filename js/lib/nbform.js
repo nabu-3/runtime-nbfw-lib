@@ -387,6 +387,8 @@ Nabu.UI.Form.prototype = {
                             trigger = (mandatory === 'yes' ? 0 : 1);
                         } else if (reflex === value) {
                             trigger = 2;
+                        } else {
+                            trigger = 0;
                         }
                     }
                     break;
