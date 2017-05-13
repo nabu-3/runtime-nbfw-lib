@@ -243,6 +243,10 @@ Nabu.Ajax.Connector.prototype = {
         }
     },
 
+    setPostJSON: function(json) {
+        this.postStream = JSON.stringify(json);
+    },
+
     setPostStream: function(stream) {
         this.postStream = stream;
     },
