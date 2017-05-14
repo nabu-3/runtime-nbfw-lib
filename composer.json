@@ -15,9 +15,6 @@
     "require": {
         "nabu-3/composer-installer-plugin": ">=3.0"
     },
-    "require-dev": {
-        "nabu-3/composer-installer-plugin": "dev-master"
-    },
     "repositories": [
         {
             "type": "vcs",

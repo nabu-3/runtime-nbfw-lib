@@ -257,6 +257,7 @@ Nabu.LibraryManager.Library = function(manager, name)
 {
     this.manager = manager;
     this.name = name;
+    this.base_path = manager.base_path;
     this.loaded = false;
     this.loadStarted = false;
     this.onloadFunctions = new Array();
@@ -288,15 +289,9 @@ Nabu.LibraryManager.prototype = {
         var library = this.libraries[name];
         library.register(required);
 
-        /*
-        for (var lib in this.libraries) {
-            library = this.libraries[lib];
-            if (library.name != name && !library.isLoaded()) setTimeout("wow.registerLibrary('" + library.name + "')", 100);
+        if (this.libraries[name] !== undefined && !this.libraries[name].verifyDependencies()) {
+            setTimeout("nabu.registerLibrary('" + name + "')", 0);
         }
-        */
-       if (this.libraries[name] !== undefined && !this.libraries[name].verifyDependencies()) {
-           setTimeout("nabu.registerLibrary('" + name + "')", 50);
-       }
     },
 
     getLibrary: function(name)
@@ -321,7 +316,7 @@ Nabu.LibraryManager.Library.prototype = {
         if (!this.loadStarted) {
             var lib = document.createElement('script');
             lib.type = "text/javascript";
-            lib.src = this.manager.base_path + this.name.toLowerCase() + ".js";
+            lib.src = this.base_path + this.name.toLowerCase() + ".js";
             document.body.appendChild(lib);
             this.loadStarted = true;
         }
