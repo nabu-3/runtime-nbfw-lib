@@ -257,14 +257,39 @@ Nabu.LibraryManager.Library = function(manager, name)
 {
     this.manager = manager;
     this.name = name;
-    this.base_path = manager.base_path;
+    this.base_path = manager.getLibraryPath(name);
     this.loaded = false;
     this.loadStarted = false;
     this.onloadFunctions = new Array();
     this.required = null;
 };
 
+Nabu.LibraryManager.Packages = new Object();
+Nabu.LibraryManager.Packages.Files = new Array();
+
+Nabu.LibraryManager.Packages.registerPackage = function(path, libraries)
+{
+    if (libraries instanceof Array) {
+        for (i in libraries) {
+            var lib = libraries[i];
+            var file = path + lib.toLowerCase() + ".js";
+            if (Nabu.LibraryManager.Packages.Files.indexOf(file) === -1) {
+                Nabu.LibraryManager.Packages.Files[lib] = file;
+            }
+        }
+    }
+    console.log(Nabu.LibraryManager.Packages.Files);
+};
+
 Nabu.LibraryManager.prototype = {
+
+    getLibraryPath: function(library)
+    {
+        return Nabu.LibraryManager.Packages.Files[library]
+               ? Nabu.LibraryManager.Packages.Files[library]
+               : this.base_path + library.toLowerCase() + ".js"
+        ;
+    },
 
     loadLibrary: function(name, callback)
     {
@@ -316,7 +341,7 @@ Nabu.LibraryManager.Library.prototype = {
         if (!this.loadStarted) {
             var lib = document.createElement('script');
             lib.type = "text/javascript";
-            lib.src = this.base_path + this.name.toLowerCase() + ".js";
+            lib.src = this.base_path;
             document.body.appendChild(lib);
             this.loadStarted = true;
         }
