@@ -4,11 +4,11 @@ try {
     throw "Nabu Manager not loaded";
 }
 
-if (!Nabu.prototype.Form) {
-    Nabu.Form = function() {};
+if (typeof Nabu.UI === 'undefined') {
+    Nabu.UI = function() {};
 }
 
-Nabu.Form.Select = function(object, params) {
+Nabu.UI.Select = function(object, params) {
     this.container = object;
     this.input = $(object).find('input[type="hidden"]');
     this.caption = $(object).find('button:first-child').get(0);
@@ -17,7 +17,7 @@ Nabu.Form.Select = function(object, params) {
     this.init();
 };
 
-Nabu.Form.Select.prototype = {
+Nabu.UI.Select.prototype = {
     init: function()
     {
         var Self = this;

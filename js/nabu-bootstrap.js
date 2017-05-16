@@ -130,7 +130,7 @@ $.fn.nabuFormSelect = function(options)
         var opts = $.extend({}, $.fn.nabuFormSelect.defaults, options);
         var data = $(this).data();
         opts = $.extend({}, opts, data);
-        var table = new Nabu.Form.Select(this, opts);
+        var table = new Nabu.UI.Select(this, opts);
     });
 };
 

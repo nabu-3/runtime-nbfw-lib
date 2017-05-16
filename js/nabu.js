@@ -13,9 +13,18 @@ Nabu.prototype = {
         return this.libraries.loadLibrary(name, callback);
     },
 
-    registerLibrary: function(name, required)
+    registerLibrary: function(name, required, hook)
     {
-        this.libraries.registerLibrary(name, required);
+        this.libraries.registerLibrary(name, required, hook);
+    },
+
+    extend: function(ctor, superCtor)
+    {
+        var f = function() {};
+        f.prototype = superCtor.prototype;
+
+        ctor.prototype = new f();
+        ctor.prototype.constructor = ctor;
     },
 
     numberFormat: function(num, numDecimals, thousandSeparator, decimalSeparator)
@@ -253,15 +262,70 @@ Nabu.LibraryManager = function(base_path)
     this.libraries = new Object();
 };
 
-Nabu.LibraryManager.Library = function(manager, name)
-{
-    this.manager = manager;
-    this.name = name;
-    this.base_path = manager.getLibraryPath(name);
-    this.loaded = false;
-    this.loadStarted = false;
-    this.onloadFunctions = new Array();
-    this.required = null;
+Nabu.LibraryManager.prototype = {
+
+    getLibraryPath: function(library)
+    {
+        return Nabu.LibraryManager.Packages.Files[library]
+               ? Nabu.LibraryManager.Packages.Files[library]
+               : this.base_path + library.toLowerCase() + ".js"
+        ;
+    },
+
+    loadLibrary: function(name, callback)
+    {
+        var library = this.libraries[name] = this.getLibrary(name, true);
+
+        if (library.isLoaded()) {
+            if (typeof callback === 'function') {
+                callback();
+            }
+        } else {
+            if (typeof callback === 'function') {
+                library.appendCallback(callback);
+            }
+            library.load();
+        }
+
+        return !library.isLoaded();
+    },
+
+    registerLibrary: function(name, required, hook)
+    {
+        var library = this.getLibrary(name);
+
+        if (library !== null) {
+            if (typeof hook === 'function') {
+                library.setHook(hook);
+            }
+            library.setRequiredLibraries(required);
+            library.loadEnd = true;
+            library.register();
+        } else {
+            throw "Library " + name + " does not exists.";
+        }
+    },
+
+    getLibrary: function(name, create)
+    {
+        if (this.libraries[name] !== undefined) {
+            return this.libraries[name];
+        } else if (create) {
+            return new Nabu.LibraryManager.Library(this, name);
+        } else {
+            return null;
+        }
+    },
+
+    verifyLibraries: function()
+    {
+        for(var i in this.libraries) {
+            var library = this.libraries[i];
+            if (!library.isLoaded()) {
+                library.register();
+            }
+        }
+    }
 };
 
 Nabu.LibraryManager.Packages = new Object();
@@ -278,55 +342,19 @@ Nabu.LibraryManager.Packages.registerPackage = function(path, libraries)
             }
         }
     }
-    console.log(Nabu.LibraryManager.Packages.Files);
 };
 
-Nabu.LibraryManager.prototype = {
-
-    getLibraryPath: function(library)
-    {
-        return Nabu.LibraryManager.Packages.Files[library]
-               ? Nabu.LibraryManager.Packages.Files[library]
-               : this.base_path + library.toLowerCase() + ".js"
-        ;
-    },
-
-    loadLibrary: function(name, callback)
-    {
-        var library = (this.libraries[name] !== undefined ? this.libraries[name] : (this.libraries[name] = new Nabu.LibraryManager.Library(this, name)));
-
-        if (library.isLoaded()) {
-            if (callback !== null && callback !== undefined) callback();
-        } else {
-            if (callback !== null && callback !== undefined) library.appendCallback(callback);
-            library.load();
-        }
-
-        return !library.isLoaded();
-    },
-
-    registerLibrary: function(name, required)
-    {
-        if (this.libraries[name] === undefined) {
-            this.libraries[name] = new LibraryManager.Library(this, name);
-        }
-
-        var library = this.libraries[name];
-        library.register(required);
-
-        if (this.libraries[name] !== undefined && !this.libraries[name].verifyDependencies()) {
-            setTimeout("nabu.registerLibrary('" + name + "')", 0);
-        }
-    },
-
-    getLibrary: function(name)
-    {
-        if (this.libraries[name] !== undefined) {
-            return this.libraries[name];
-        } else {
-            return null;
-        }
-    }
+Nabu.LibraryManager.Library = function(manager, name)
+{
+    this.manager = manager;
+    this.name = name;
+    this.base_path = manager.getLibraryPath(name);
+    this.loaded = false;
+    this.loadStarted = false;
+    this.loadEnd = false;
+    this.onloadFunctions = new Array();
+    this.required = null;
+    this.hook = false;
 };
 
 Nabu.LibraryManager.Library.prototype = {
@@ -338,12 +366,18 @@ Nabu.LibraryManager.Library.prototype = {
 
     load: function()
     {
+        var Self = this;
+
         if (!this.loadStarted) {
-            var lib = document.createElement('script');
-            lib.type = "text/javascript";
-            lib.src = this.base_path;
-            document.body.appendChild(lib);
-            this.loadStarted = true;
+            (function() {
+                var lib = document.createElement('script');
+                lib.type = "text/javascript";
+                lib.src = Self.base_path;
+                //lib.async = true;
+                //lib.defer = true;
+                document.body.appendChild(lib);
+                this.loadStarted = true;
+            })();
         }
     },
 
@@ -352,21 +386,30 @@ Nabu.LibraryManager.Library.prototype = {
         if (this.loaded === false) this.onloadFunctions.push(callback);
     },
 
-    register: function(required)
+    setHook: function(hook)
     {
-        if (!this.loaded) {
-            if (required) {
-                this.required = required;
-            }
+        this.hook = (typeof hook === 'function') ? hook : this.hook;
+    },
+    setRequiredLibraries: function(required)
+    {
+        this.required = (typeof required === 'undefined' ? null : required);
+    },
+    register: function()
+    {
+        if (!this.loaded && this.loadEnd) {
             if (this.verifyDependencies()) {
+                if (this.hook instanceof Function) {
+                    this.hook();
+                }
                 while (this.onloadFunctions.length > 0) {
                     var callback = this.onloadFunctions.shift();
-                    if (callback !== null && callback !== undefined) {
+                    if ((typeof callback !== 'undefined') && callback !== null) {
                         callback();
                     }
                 }
                 this.loaded = true;
                 this.loadStarted = false;
+                this.manager.verifyLibraries();
             }
         }
     },
