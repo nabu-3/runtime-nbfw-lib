@@ -370,13 +370,13 @@ Nabu.LibraryManager.Library.prototype = {
 
         if (!this.loadStarted) {
             (function() {
+                Self.loadStarted = true;
                 var lib = document.createElement('script');
                 lib.type = "text/javascript";
                 lib.src = Self.base_path;
-                //lib.async = true;
+                lib.async = true;
                 //lib.defer = true;
                 document.body.appendChild(lib);
-                this.loadStarted = true;
             })();
         }
     },
