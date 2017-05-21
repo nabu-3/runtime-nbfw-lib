@@ -77,11 +77,13 @@ Nabu.Ajax.Connector.prototype = {
         if (this.request) {
             try {
                 var loader = this;
+                var synch = (this.params && this.params.synchronous && this.params.synchronous === true);
 
                 this.pending = true;
                 this.start_time = this.now();
 
                 if (this.request_type === "XDomainRequest") {
+                    synch = false;
                     var session = nabu.getCookie('PHPSESSID');
                     if (session.length > 0) {
                         if (this.url.indexOf('?') < 0) {
@@ -105,22 +107,24 @@ Nabu.Ajax.Connector.prototype = {
                     this.request.onerror = function(e) {
                     };
                 } else {
-                    this.request.open(this.method, this.url, true);
-                    this.request.onreadystatechange = function() {
-                        loader.onReadyState();
-                        loader.pending = false;
-                    };
-                    if (this.request.ontimeout) {
-                        this.request.ontimeout = function() {
-                            loader.onTimeout();
+                    this.request.open(this.method, this.url, !synch);
+                    if (!synch) {
+                        this.request.onreadystatechange = function() {
+                            loader.onReadyState();
                             loader.pending = false;
                         };
+                        if (this.request.ontimeout) {
+                            this.request.ontimeout = function() {
+                                loader.onTimeout();
+                                loader.pending = false;
+                            };
+                        }
+                        try {
+                            this.request.upload.onprogress = function(event) {
+                                loader.onUploadProgress(event);
+                            };
+                        } catch (e) {}
                     }
-                    try {
-                        this.request.upload.onprogress = function(event) {
-                            loader.onUploadProgress(event);
-                        };
-                    } catch (e) {}
                 }
 
                 if (this.params) {
@@ -156,12 +160,16 @@ Nabu.Ajax.Connector.prototype = {
                     }, 0);
                 } else {
                     this.request.send(this.postStream);
+                    if (synch) {
+                        this.onReadyState();
+                    }
                 }
             } catch (err) {
-                if (this.params && this.params.onError)
+                if (this.params && this.params.onError) {
                     this.params.onError(err);
-                else
-                    alert("Se ha producido un error");
+                } else {
+                    alert("Se ha producido un error. " + err);
+                }
             }
         }
     },
@@ -176,8 +184,9 @@ Nabu.Ajax.Connector.prototype = {
     onReadyState: function()
     {
         var is_xdr = this.request_type === 'XDomainRequest';
+        var is_synch = (this.params && this.params.synchronous && this.params.synchronous === true);
 
-        if (is_xdr || this.request.readyState === Nabu.Ajax.READY_STATE_COMPLETE) {
+        if (is_xdr || is_synch || this.request.readyState === Nabu.Ajax.READY_STATE_COMPLETE) {
             var httpStatus = (is_xdr ? 200 : this.request.status);
             if (httpStatus === 200 /*|| httpStatus === 0*/) {
 
