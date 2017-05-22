@@ -87,7 +87,6 @@ $.fn.nabuForm = function(options)
                 return $(Self).trigger("beforesubmit.form.nabu");
             },
             onSubmit: function(e) {
-                console.log(e);
                 var data = $(Self).data();
                 if (data.actionTemplate && data.actionTemplate.length > 0) {
                     var field = (data.actionTemplateField && data.actionTemplateField.length > 0
@@ -98,7 +97,7 @@ $.fn.nabuForm = function(options)
                         $(Self).data('id', e.params.response.json.data[field]);
                     }
                 }
-                $(Self).trigger("response.form.nabu", e.params);
+                return $(Self).trigger("response.form.nabu", e.params);
             }
         }));
     });
@@ -365,13 +364,14 @@ $.fn.nabuLangSelector = function(options)
         var count = $(opts.container).find('[lang].active').length;
         $(opts.container).find('li[lang]').each(function() {
             var lang = $(this).attr('lang');
+            var from = typeof opts.target === 'string' ? $(opts.target) : $(document);
             if ($(this).hasClass('active')) {
-                $('[data-toggle="toggable-lang"] [lang="' + lang + '"]').removeClass('hide');
+                from.find('[data-toggle="toggable-lang"] [lang="' + lang + '"]').removeClass('hide');
                 if (count === 1) {
-                    $('[data-toggle="toggable-lang"] .flag[lang="' + lang + '"]').addClass('hide');
+                    from.find('[data-toggle="toggable-lang"] .flag[lang="' + lang + '"]').addClass('hide');
                 }
             } else {
-                $('[data-toggle="toggable-lang"] [lang="' + lang + '"]').addClass('hide');
+                from.find('[data-toggle="toggable-lang"] [lang="' + lang + '"]').addClass('hide');
             }
         });
     };
@@ -393,7 +393,7 @@ $.fn.nabuLangSelector = function(options)
             checkLangs(opts);
 
             $(this).find('li[lang] > a').on('click', function() {
-                var li = $(this).closest('[lang]');
+                var li = $(this).closest('li[lang]');
                 var count = $(opts.container).find('[lang].active').length;
                 if (li.hasClass('active')) {
                     if (count > 1) {
