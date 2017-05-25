@@ -1052,7 +1052,7 @@ Nabu.UI.Form.prototype = {
                       )
             ;
 
-            var method = this.form.method.toUpperCase();
+            var method = data['ajaxMethod'] ? data['ajaxMethod'] : this.form.method.toUpperCase();
             if (method === 'GET') {
                 uri += (uri !== null && uri.indexOf('?') >= 0 ? "&" : "?") + stream;
             }
@@ -1210,8 +1210,6 @@ Nabu.UI.Form.prototype = {
             if (field.attributes['type']) {
                 var ftype = field.attributes['type'].value.toLowerCase();
                 if (ftype === 'checkbox') {
-                    console.log(field.attributes);
-                    console.log(field.name);
                     this.events.fireEvent('onFieldChange', this, {
                         'field': field.name,
                         'value': field.checked ? $(field).val() : $(field).data('value-unchecked')
