@@ -4,6 +4,7 @@ var Nabu = function() {
     } else {
         this.libraries = new Nabu.LibraryManager(NABU_LIBRARY_PATH);
     }
+    this.minify = true;
 };
 
 Nabu.prototype = {
@@ -16,6 +17,16 @@ Nabu.prototype = {
     registerLibrary: function(name, required, hook)
     {
         this.libraries.registerLibrary(name, required, hook);
+    },
+
+    isMinify: function()
+    {
+        return this.minify;
+    },
+
+    setMinify: function(minify)
+    {
+        this.minify = minify;
     },
 
     extend: function(ctor, superCtor)
@@ -268,7 +279,7 @@ Nabu.LibraryManager.prototype = {
     {
         return Nabu.LibraryManager.Packages.Files[library]
                ? Nabu.LibraryManager.Packages.Files[library]
-               : this.base_path + library.toLowerCase() + ".js"
+               : this.base_path + library.toLowerCase() + (nabu.isMinify() ? '.min' : '') + ".js"
         ;
     },
 
@@ -336,7 +347,7 @@ Nabu.LibraryManager.Packages.registerPackage = function(path, libraries)
     if (libraries instanceof Array) {
         for (i in libraries) {
             var lib = libraries[i];
-            var file = path + lib.toLowerCase() + ".js";
+            var file = path + lib.toLowerCase() + (nabu.isMinify() ? '.min' : '') + ".js";
             if (Nabu.LibraryManager.Packages.Files.indexOf(file) === -1) {
                 Nabu.LibraryManager.Packages.Files[lib] = file;
             }
