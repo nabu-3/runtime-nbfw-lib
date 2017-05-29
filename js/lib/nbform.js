@@ -267,7 +267,11 @@ Nabu.UI.Form.prototype = {
                 if (field.object.attributes['type'] && field.object.attributes['type'].value==='radio' && field.object.attributes['name'] && this.form!==null) {
                     value = this.getRadioValue(this.form[field.object.attributes['name'].value], null);
                 } else {
-                    value = field.object.value;
+                    if (field.object.attributes['type'].value==='checkbox' && !field.object.checked) {
+                        value =$(field.object).data('valueUnchecked');
+                    } else {
+                        value = field.object.value;
+                    }
                 }
                 if (nabu.getNavigatorName() === 'MSIE' && field.object.attributes['placeholder'] && field.object.attributes['placeholder'] === value) {
                     value = '';
@@ -1021,9 +1025,7 @@ Nabu.UI.Form.prototype = {
                                         fd.append(i + '[' + j + ']', files[j]);
                                     }
                                 } else*/ if (t !== 'submit' && t !== 'image') {
-                                    if ((t !== 'checkbox' && t !== 'radio') || obj.checked) {
-                                        stream += (stream.length === 0 ? "" : "&") + i + "=" + encodeURIComponent(this.getFieldValue(i));
-                                    }
+                                    stream += (stream.length === 0 ? "" : "&") + i + "=" + encodeURIComponent(this.getFieldValue(i));
                                 }
                             }
                         } else if (obj instanceof HTMLSelectElement || obj instanceof HTMLTextAreaElement || obj instanceof NodeList || obj instanceof HTMLCollection || obj instanceof Array) {
@@ -1122,7 +1124,6 @@ Nabu.UI.Form.prototype = {
                 for (var field in this.fields) {
                     var field = this.fields[field].object;
                     if ((field.attributes['type'] && field.attributes['type'].value==='submit') ||
-                        //(!field.attributes['type'] && field.tagName.toLowerCase()==='button') ||
                         (field.attributes['action'] && field.attributes['action'].value==='submit')
                        )
                     {
@@ -1194,8 +1195,6 @@ Nabu.UI.Form.prototype = {
             field.inClickForm = true;
             if (field.attributes['type'] && field.attributes['type'].value.toLowerCase() === 'submit') this.submit_object = field;
 
-            //if (field.form_onclick_old && field.form_onclick_old !== null && (typeof field.form_onclick_old) === 'function') field.form_onclick_old();
-
             var trigger = this.validateField(field.name);
             this.setFieldStatusClass(field.name, trigger);
             this.resetActionsFlag();
@@ -1212,7 +1211,7 @@ Nabu.UI.Form.prototype = {
                 if (ftype === 'checkbox') {
                     this.events.fireEvent('onFieldChange', this, {
                         'field': field.name,
-                        'value': field.checked ? $(field).val() : $(field).data('value-unchecked')
+                        'value': field.checked ? $(field).val() : $(field).data('valueUnchecked')
                     });
                 }
             }
