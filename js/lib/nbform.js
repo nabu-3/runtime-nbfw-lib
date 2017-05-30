@@ -267,7 +267,7 @@ Nabu.UI.Form.prototype = {
                 if (field.object.attributes['type'] && field.object.attributes['type'].value==='radio' && field.object.attributes['name'] && this.form!==null) {
                     value = this.getRadioValue(this.form[field.object.attributes['name'].value], null);
                 } else {
-                    if (field.object.attributes['type'].value==='checkbox' && !field.object.checked) {
+                    if (field.object.attributes['type'] && field.object.attributes['type'].value==='checkbox' && !field.object.checked) {
                         value =$(field.object).data('valueUnchecked');
                     } else {
                         value = field.object.value;
