@@ -141,13 +141,13 @@ Nabu.Ajax.Connector.prototype = {
                         this.request.withCredentials = this.params.withCredentials;
                     }
                 }
-                if (this.method === "POST") {
+                if (this.method === "POST" || this.method === "DELETE") {
                     if (this.params && (typeof this.params.contentType) !== (typeof undefined)) {
                         if (this.params.contentType !== null) {
-                            this.setRequestHeader("Content-type", this.params.contentType);
+                            this.setRequestHeader("Content-Type", this.params.contentType);
                         }
                     } else {
-                        this.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                        this.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                     }
                     //this.request.setRequestHeader("Content-length", this.postStream === null ? 0 : this.postStream.length);
                     //this.request.setRequestHeader("Connection", "close");
