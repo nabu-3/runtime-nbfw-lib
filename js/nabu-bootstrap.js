@@ -15,7 +15,7 @@ $.fn.nabuTable = function(options)
                 }
             },
             onLoadEditor: function(e) {
-                nbBootstrapToggleAll($('#' + e.params.container_id));
+                nbBootstrapToggleAll('#' + e.params.container_id);
                 Self.nabuTable.connectForm(e.params.id, '#' + e.params.container_id + ' form');
             }
         }));
@@ -79,6 +79,7 @@ $.fn.nabuForm = function(options)
     return this.each(function() {
         var opts = $.extend({}, $.fn.nabuForm.defaults, options);
         var data = $(this).data();
+        console.log(["data", data]);
         $.extend(opts, data);
         var form = new Nabu.UI.Form(this, opts);
         var Self = this;

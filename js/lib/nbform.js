@@ -1014,7 +1014,8 @@ Nabu.UI.Form.prototype = {
                 }*/
             } else {
                 for (i in this.fields) {
-                    var obj = this.fields[i].object;
+                    var field = this.fields[i];
+                    var obj = field.object;
                     if (obj !== null) {
                         if (obj instanceof HTMLInputElement) {
                             if (obj.attributes['type']) {
