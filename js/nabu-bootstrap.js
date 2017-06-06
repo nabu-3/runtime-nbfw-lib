@@ -79,7 +79,6 @@ $.fn.nabuForm = function(options)
     return this.each(function() {
         var opts = $.extend({}, $.fn.nabuForm.defaults, options);
         var data = $(this).data();
-        console.log(["data", data]);
         $.extend(opts, data);
         var form = new Nabu.UI.Form(this, opts);
         var Self = this;

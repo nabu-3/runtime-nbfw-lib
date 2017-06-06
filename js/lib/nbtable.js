@@ -240,8 +240,7 @@ Nabu.UI.Table.prototype = {
                             var div = document.createElement('DIV');
                             div.id = cont_id;
                             div.innerHTML = e.params.text;
-                            container[0].appendChild(div);
-                            console.log($(div).find('form').data());
+                            container.append(div);
                             if (is_new) {
                                 var multiform=container.find('form[data-multiform-part]');
                                 multiform.each(function() {
