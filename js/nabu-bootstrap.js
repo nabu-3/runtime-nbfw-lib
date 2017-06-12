@@ -1,3 +1,31 @@
+try {
+    if (!Nabu) throw "Nabu Manager not loaded";
+} catch (e) {
+    throw "Nabu Manager not loaded";
+}
+
+Nabu.Bootstrap = function() {
+    this.bootloaders = new Array();
+};
+
+Nabu.Bootstrap.prototype =
+{
+    addLoader: function(loader) {
+        if (typeof loader === "function") {
+            this.bootloaders.push(loader);
+        }
+    },
+
+    runLoaders: function(container) {
+        for (var i in this.bootloaders) {
+            var loader = this.bootloaders[i];
+            loader(container);
+        }
+    }
+}
+
+var nabuBootstrap = new Nabu.Bootstrap();
+
 $.fn.nabuTable = function(options)
 {
     return this.each(function() {
@@ -457,6 +485,8 @@ function nbBootstrapToggleAll(container)
     nbBootstrapTrees(container);
     nbBootstrapForms(container);
     nbBootstrapMultiForms(container);
+
+    nabuBootstrap.runLoaders(container);
 
     $(container).find('[data-toggle="tab"]').on('shown.bs.tab', function() {
         $(window).resize();
