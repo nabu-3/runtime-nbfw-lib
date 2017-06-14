@@ -303,7 +303,7 @@ $.fn.nabuMultiForm = function(options)
         opts = $.extend({}, opts, data);
         $(this).find('[data-toggle="nabu-multiform-save"]')
             .on('click', function(e) {
-                if (CKEDITOR) {
+                if (typeof CKEDITOR !== 'undefined') {
                     for(var name in CKEDITOR.instances) {
                         CKEDITOR.instances[name].updateElement();
                     }

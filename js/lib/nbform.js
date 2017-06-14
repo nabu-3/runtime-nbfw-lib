@@ -1124,12 +1124,14 @@ Nabu.UI.Form.prototype = {
             if (submit_object === null || (submit_object.attributes['type'] && submit_object.attributes['type'].value !== 'submit')) {
                 for (var field in this.fields) {
                     var field = this.fields[field].object;
-                    if ((field.attributes['type'] && field.attributes['type'].value==='submit') ||
-                        (field.attributes['action'] && field.attributes['action'].value==='submit')
-                       )
-                    {
-                        submit_object = field;
-                        break;
+                    if (field.attributes) {
+                        if ((field.attributes['type'] && field.attributes['type'].value==='submit') ||
+                            (field.attributes['action'] && field.attributes['action'].value==='submit')
+                           )
+                        {
+                            submit_object = field;
+                            break;
+                        }
                     }
                 }
             }
