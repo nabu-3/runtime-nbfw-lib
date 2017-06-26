@@ -121,7 +121,7 @@ $.fn.nabuForm = function(options)
                               ? data.actionTemplateField
                               : 'id'
                     );
-                    if (e.params.response.json.data[field]) {
+                    if (e.params.response.json.data && e.params.response.json.data[field]) {
                         $(Self).data('id', e.params.response.json.data[field]);
                     }
                 }
