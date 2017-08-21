@@ -32,10 +32,10 @@ Nabu.UI.Tree.prototype = {
     init: function()
     {
         var Self = this;
-        $(this.container).find('.nabu-tree-level > li > .tree-item').on('click', function(e) {
+        $(this.container).find('.tree-level > li > .tree-item').on('click', function(e) {
             e.stopPropagation();
             var li = $(this.parentElement);
-            $(Self.container).find('.nabu-tree-level > li').removeClass('active');
+            $(Self.container).find('.tree-level > li').removeClass('active');
             li.addClass('active');
             var data = li.data();
             Self.events.fireEvent('onClick', Self, {
@@ -44,13 +44,13 @@ Nabu.UI.Tree.prototype = {
             return false;
         });
 
-        $(this.container).find('.nabu-tree-level li > .tree-item .btn-toolbar > .btn-expand').on('click', function(e) {
+        $(this.container).find('.tree-level li > .tree-item .btn-toolbar > .btn-expand').on('click', function(e) {
             e.stopPropagation();
             var li = $(this).closest('li');
             li.toggleClass('expanded');
             if (!li.hasClass('expanded')) {
                 li.find('.nabu-tree-level > li').removeClass('active');
-                if ($(Self.container).find('.nabu-tree-level > li.active').length === 0) {
+                if ($(Self.container).find('.tree-level > li.active').length === 0) {
                     Self.events.fireEvent('onCancelSelection', Self);
                 }
             }
