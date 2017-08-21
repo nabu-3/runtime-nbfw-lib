@@ -206,6 +206,31 @@ function nbBootstrapTabLinks(container)
     $(container).find('[data-toggle="nabu-tab-link"]').nabuTabLink();
 }
 
+function nbBootstrapTabPersistence(container)
+{
+    var tab_groups = $(container).find('[data-toggle="tab-persistence"]');
+    if (tab_groups.length > 0) {
+        nabu.loadLibrary('Storage', function() {
+            var storage = new Nabu.Storage(true);
+            tab_groups.each(function() {
+                var id = $(this).data('persistenceId');
+                if (typeof id !== 'undefined') {
+                    var tab = storage.getValue('tabPersistence_' + id);
+                    if (typeof tab !== 'undefined') {
+                        $(this).find('[href="' + tab + '"]').tab('show');
+                    }
+                    $(this).find('[data-toggle="tab"]').on('click', function() {
+                        tab = $(this).attr('href');
+                        if (typeof tab !== 'undefined') {
+                            storage.setValue('tabPersistence_' + id, tab);
+                        }
+                    });
+                }
+            });
+        });
+    }
+}
+
 $.fn.nabuSplitPanels = function(options)
 {
     return this.each(function() {
@@ -479,6 +504,7 @@ function nbBootstrapToggleAll(container)
     nbBootstrapSelects(container);
     nbBootstrapSplitPanels(container);
     nbBootstrapTabLinks(container);
+    nbBootstrapTabPersistence(container);
     nbBootstrapInputGroups(container);
     nbBootstrapLangSelectors(container);
     nbBootstrapTables(container);

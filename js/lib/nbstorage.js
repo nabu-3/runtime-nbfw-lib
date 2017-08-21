@@ -29,11 +29,11 @@ Nabu.Storage.prototype = {
             storage.removeItem(x);
             this.storage = storage;
             this.available = true;
-	}
-	catch(e) {
-            this.storage = null;
-            this.available = false;
-	}
+    	}
+    	catch(e) {
+                this.storage = null;
+                this.available = false;
+    	}
     },
 
     getValue: function(key, parser) {
