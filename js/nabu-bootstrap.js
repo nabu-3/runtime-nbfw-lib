@@ -74,22 +74,30 @@ $.fn.nabuTree = function(options)
     return this.each(function() {
         var opts = $.extend({}, $.fn.nabuTree.defaults, options);
         var data = $(this).data();
-        $.extend(opts, data);
-        var tree = new Nabu.UI.Tree(this, opts);
+        opts = $.extend({}, opts, data);
+        this.nabuTree = new Nabu.UI.Tree(this, opts);
         var Self = this;
-        tree.addEventListener(new Nabu.Event({
-            onClick: function(e) {
-                $(Self).trigger('click.tree.nabu', e.params.id);
+        this.nabuTree.addEventListener(new Nabu.Event({
+            onToolbarClick: function(e) {
+                if (e.params.action && e.params.action.length > 0) {
+                    $(Self).trigger('pressed.' + e.params.action + '.toolbar.tree.nabu', e.params);
+                } else {
+                    $(Self).trigger('pressed.toolbar.tree.nabu', e.params);
+                }
             },
-            onToggle: function(e) {
-            },
-            onCancelSelection: function(e) {
+            onLoadEditor: function(e) {
+                nbBootstrapToggleAll('#' + e.params.container_id);
+                Self.nabuTree.connectForm(e.params_id, '#' + e.params.container_id + ' form');
             }
         }));
     });
 };
 
 $.fn.nabuTree.defaults = {
+    "api": null,
+    "editor": null,
+    "editorMode": "page",
+    "editorButton": "line"
 };
 
 function nbBootstrapTrees(container)
