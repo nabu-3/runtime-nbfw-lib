@@ -38,45 +38,9 @@ Nabu.UI.Tree.prototype = {
     init: function()
     {
         this.initEditButtonStyle();
+        this.initCollapseButtons(this.container);
         this.initToolbar();
-
-        /*
-        var Self = this;
-        $(this.container).find('.tree-level > li > .tree-item').on('click', function(e) {
-            e.stopPropagation();
-            var li = $(this.parentElement);
-            $(Self.container).find('.tree-level > li').removeClass('active');
-            li.addClass('active');
-            var data = li.data();
-            Self.events.fireEvent('onClick', Self, {
-                id: (typeof data.id === 'undefined') ? null : data.id
-            });
-            return false;
-        });
-
-        $(this.container).find('.tree-level li > .tree-item .btn-toolbar > .btn-expand').on('click', function(e) {
-            e.stopPropagation();
-            var li = $(this).closest('li');
-            li.toggleClass('expanded');
-            if (!li.hasClass('expanded')) {
-                li.find('.nabu-tree-level > li').removeClass('active');
-                if ($(Self.container).find('.tree-level > li.active').length === 0) {
-                    Self.events.fireEvent('onCancelSelection', Self);
-                }
-            }
-            var data = $(this.parentElement).data();
-            Self.events.fireEvent('onToggle', Self, {
-                id: (typeof data.id === 'undefined') ? null : data.id,
-                expanded: li.hasClass('expanded')
-            });
-            return false;
-        });
-
-        $(this.container).find('[data-toggle="drag-item"]').on('nabu.DAD.beforeDragStart', function() {
-            console.log("nabu.DAD.beforeDragStart");
-            return true;
-        });
-        */
+        this.initDAD();
     },
 
     initEditButtonStyle: function()
@@ -96,6 +60,20 @@ Nabu.UI.Tree.prototype = {
                 })
             ;
         }
+    },
+
+    initCollapseButtons: function(container)
+    {
+        var Self = this;
+        $(container)
+            .find('.tree-item-toolbar > .btn-expand')
+                .on('click', function(e) {
+                    e.stopPropagation();
+                    var item = $(this).closest('.tree-item');
+                    Self.toggleCollapsedItem(item);
+                    return false;
+                })
+        ;
     },
 
     initToolbar: function()
@@ -124,6 +102,14 @@ Nabu.UI.Tree.prototype = {
         this.enableToolbarButtons();
     },
 
+    initDAD: function()
+    {
+        $(this.container).find('[data-toggle="drag-item"]').on('nabu.DAD.beforeDragStart', function() {
+            console.log("nabu.DAD.beforeDragStart");
+            return true;
+        });
+    },
+
     enableToolbarButtons: function()
     {
         var toolbar = $(this.container).find('.tree-toolbar');
@@ -143,6 +129,17 @@ Nabu.UI.Tree.prototype = {
                        .removeAttr('disabled');
             }
         }
+    },
+
+    toggleCollapsedItem: function(item)
+    {
+        var li = $(item).closest('li');
+        li.toggleClass('expanded');
+        var data = $(item).data();
+        this.events.fireEvent('onToggle', this, {
+            id: (typeof data.id === 'undefined') ? null : data.id,
+            expanded: li.hasClass('expanded')
+        });
     },
 
     doEditButtonClick: function(e)
