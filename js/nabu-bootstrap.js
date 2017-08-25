@@ -374,47 +374,56 @@ function nbBootstrapMultiForms(container)
 
 $.fn.nabuDragAndDrop = function(options)
 {
-    return this.each(function() {
-        var obj = this;
-        var opts = $.extend({}, $.fn.nabuDragAndDrop.defaults, options);
-        var data = $(this).data();
-        opts = $.extend({}, opts, data);
-        switch (opts.type) {
-            case 'item':
-                var manager = new Nabu.DragAndDrop.DragItem(this, opts);
-                manager.addEventListener(new Nabu.Event({
+    if (typeof options === 'string') {
+
+    } else {
+        return this.each(function()
+        {
+            var obj = this;
+            var opts = $.extend({}, $.fn.nabuDragAndDrop.defaultsContainer, options);
+            var data = $(this).data();
+            opts = $.extend({}, opts, data);
+
+            var container = new Nabu.DragAndDrop.Container(this, opts);
+
+            var drops = $(this).find('[data-toggle="drop-container"]');
+            drops.each(function() {
+                var data = $(this).data();
+                var dropOpts = $.extend({}, $.fn.nabuDragAndDrop.defaultsDrop, data);
+                this.dropContainer = new Nabu.DragAndDrop.DropContainer(container, this, dropOpts);
+            });
+
+            var drags = $(this).find('[data-toggle="drag-item"]');
+            drags.each(function() {
+                var data = $(this).data();
+                var dragOpts = $.extend({}, $.fn.nabuDragAndDrop.defaultsDrag, data);
+                this.dragItem = new Nabu.DragAndDrop.DragItem(container, this, dragOpts);
+                this.dragItem.addEventListener(new Nabu.Event({
                     beforeDragStart: function(source, params) {
                         return $(obj).triggerHandler('nabu.DAD.beforeDragStart');
                     }
                 }));
-                break;
-            case 'container':
-                var manager = new Nabu.DragAndDrop.DropContainer(this, opts);
-                break;
-        }
-    });
+            });
+        });
+    }
 };
 
-$.fn.nabuDragAndDrop.defaults = {
+$.fn.nabuDragAndDrop.defaultsContainer = {
+};
+
+$.fn.nabuDragAndDrop.defaultsDrop = {
+};
+
+$.fn.nabuDragAndDrop.defaultsDrag = {
 };
 
 function nbBootstrapDADs(container)
 {
-    var drops = $(container).find('[data-toggle="drop-container"]');
-    if (drops.length > 0) {
+    var containers = $(container).find('[data-toggle="nabu-drag-and-drop"]');
+    if (containers.length > 0) {
         nabu.loadLibrary('DragAndDrop', function() {
-            drops.nabuDragAndDrop({
-                type: 'container'
-            });
-        })
-    }
-    var drags = $(container).find('[data-toggle="drag-item"]');
-    if (drags.length > 0) {
-        nabu.loadLibrary('DragAndDrop', function() {
-            drags.nabuDragAndDrop({
-                type: 'item'
-            });
-        })
+            containers.nabuDragAndDrop();
+        });
     }
 }
 

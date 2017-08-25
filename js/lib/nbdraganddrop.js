@@ -8,10 +8,119 @@ if (!Nabu.prototype.DragAndDrop) {
     Nabu.DragAndDrop = function() {};
 }
 
-Nabu.DragAndDrop.DragItem = function(object, params)
+Nabu.DragAndDrop.Container = function(object, params)
 {
-    console.log("new DragItem object");
     this.events = new Nabu.EventPool();
+    this.object = object;
+    this.inner = $(object).find('.tree-inner').get(0);
+    this.object.dadContainer = this;
+    this.touchSupport = 'ontouchend' in document;
+    this.dropObjects = new Array();
+    this.dragObject = null;
+
+    this.init();
+};
+
+Nabu.DragAndDrop.Container.prototype = {
+
+    addEventListener: function(event)
+    {
+        this.events.addEventListener(event);
+    },
+
+    removeEventListener: function(event)
+    {
+        this.events.removeEventListener(event);
+    },
+
+    init: function()
+    {
+        var Self = this;
+        if (this.object !== false) {
+            if (this.touchSupport) {
+                $(this.object).on('touchmove', function(e) {
+                    console.log('DragItem.touchmove');
+                    return Self.dragMove(e);
+                });
+                $(document.body).on('touchend', function(e) {
+                    console.log('DragItem.touchend');
+                    return Self.dragEnd(e);
+                });
+            } else {
+                $(this.object).on('mousemove', function(e) {
+                    return Self.dragMove(e);
+                });
+                $(document.body).on('mouseup', function(e) {
+                    return Self.dragEnd(e);
+                });
+            }
+        }
+
+    },
+
+    addDropContainer: function(dropContainer)
+    {
+        this.dropObjects.push(dropContainer);
+    },
+
+    translateCoordinates: function(x, y)
+    {
+        var bounds = this.inner.getBoundingClientRect();
+
+        return { "x": x - bounds.left, "y": y - bounds.top };
+    },
+
+    setDragObject: function(object)
+    {
+        this.dragObject = object;
+    },
+
+    dragMove: function(e)
+    {
+        if (this.dragObject !== null) {
+            this.dragObject.dragMove(e);
+            var dropObject = this.getBestQualifiedDropObject(e);
+            console.log(dropObject);
+        }
+
+        return true;
+    },
+
+    dragEnd: function(e)
+    {
+        if (this.dragObject !== null) {
+            var retval = this.dragObject.dragEnd(e);
+            this.dragObject = null;
+            return retval;
+        }
+
+        return true;
+    },
+
+    getBestQualifiedDropObject: function(e)
+    {
+        var x = e.clientX;
+        var y = e.clientY;
+        var current = null;
+
+        for (i in this.dropObjects) {
+            var dropObject = this.dropObjects[i];
+            var bounds = dropObject.object.getBoundingClientRect();
+            if (bounds.left <= x && bounds.right >= x && bounds.top <= y && bounds.bottom >= y) {
+                if (current === null || $.contains(current.object, dropObject.object)) {
+                    current = dropObject;
+                }
+            }
+        }
+
+        return current;
+    }
+};
+
+Nabu.DragAndDrop.DragItem = function(container, object, params)
+{
+    this.events = new Nabu.EventPool();
+    this.container = container;
     this.object = object;
     this.object.dragItem = this;
     this.touchSupport = 'ontouchend' in document;
@@ -44,22 +153,11 @@ Nabu.DragAndDrop.DragItem.prototype = {
             if (this.touchSupport) {
                 $(this.object).on('touchstart', function(e) {
                     console.log('DragItem.touchstart');
-                });
-                $(this.object).on('touchmove', function(e) {
-                    console.log('DragItem.touchmove');
-                });
-                $(this.object).on('touchend', function(e) {
-                    console.log('DragItem.touchend');
+                    return Self.dragStart(e);
                 });
             } else {
                 $(this.object).on('mousedown', function(e) {
                     return Self.dragStart(e);
-                });
-                $(this.object).on('mousemove', function(e) {
-                    return Self.dragMove(e);
-                });
-                $(this.object).on('mouseup', function(e) {
-                    return Self.dragEnd(e);
                 });
             }
         }
@@ -69,19 +167,17 @@ Nabu.DragAndDrop.DragItem.prototype = {
     {
         this.draginit = true;
         var bounds = this.object.getBoundingClientRect();
-        this.dragCoordinates.ox = bounds.left;
-        this.dragCoordinates.oy = bounds.top;
+        var transcoord = this.container.translateCoordinates(bounds.left, bounds.top);
+        this.dragCoordinates.ox = transcoord.x;
+        this.dragCoordinates.oy = transcoord.y;
         this.dragCoordinates.dx = e.clientX - bounds.left;
         this.dragCoordinates.dy = e.clientY - bounds.top;
         this.dragCoordinates.width = bounds.width;
         this.dragCoordinates.height = bounds.height;
-        console.log(e);
-        console.log(e.clientX);
-        console.log(e.clientY);
-        console.log(bounds);
-        console.log(this.dragCoordinates);
 
         this.dragging = true;
+
+        this.container.setDragObject(this);
     },
 
     dragMove: function(e)
@@ -92,13 +188,14 @@ Nabu.DragAndDrop.DragItem.prototype = {
                 this.dragAnchor = document.createElement('SPAN');
                 this.dragAnchor.style.display='hidden';
                 this.object.parentNode.replaceChild(this.dragAnchor, this.object);
-                document.body.appendChild(this.object);
+                this.container.inner.appendChild(this.object);
                 this.object.style.width = this.dragCoordinates.width + 'px';
                 this.object.style.height = this.dragCoordinates.height + 'px';
                 this.draginit = false;
             }
-            this.object.style.left = (e.clientX - this.dragCoordinates.dx) + 'px';
-            this.object.style.top = (e.clientY - this.dragCoordinates.dy) + 'px';
+            var transcoord = this.container.translateCoordinates(e.clientX, e.clientY);
+            this.object.style.left = (transcoord.x - this.dragCoordinates.dx) + 'px';
+            this.object.style.top = (transcoord.y - this.dragCoordinates.dy) + 'px';
         }
 
         return true;
@@ -109,7 +206,7 @@ Nabu.DragAndDrop.DragItem.prototype = {
         if (this.dragging) {
             if (this.dragAnchor !== null) {
                 var parent = this.dragAnchor.parentNode;
-                document.body.removeChild(this.object);
+                this.container.inner.removeChild(this.object);
                 parent.replaceChild(this.object, this.dragAnchor);
                 this.dragAnchor = null;
             }
@@ -119,14 +216,14 @@ Nabu.DragAndDrop.DragItem.prototype = {
             e.preventDefault();
             e.stopPropagation();
         }
-    }
-
+    },
 };
 
-Nabu.DragAndDrop.DropContainer = function(object, params)
+Nabu.DragAndDrop.DropContainer = function(container, object, params)
 {
-    console.log("new DropContainer object");
     this.events = new Nabu.EventPool();
+    this.container = container;
+    this.container.addDropContainer(this);
     this.object = object;
     this.touchSupport = 'ontouchend' in document;
 
@@ -152,13 +249,7 @@ Nabu.DragAndDrop.DropContainer.prototype = {
             if (this.touchSupport) {
 
             } else {
-                $(this.object).on('mousemove', function(e) {
-                    console.log('mousemove');
-                    return true;
-                });
-                $(this.object).on('mouseout', function(e) {
-                    console.log('mouseout');
-                });
+
             }
         }
     },
