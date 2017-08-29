@@ -21,10 +21,11 @@ Nabu.Event.prototype = {
 
     fireEvent: function(event, source, params) {
         if (this.params[event]) {
-            return this.params[event]({ source: source, params: params});
+            var retval = this.params[event]({ source: source, params: params});
+            return (typeof retval === 'undefined' ? true : retval);
         }
 
-        return false;
+        return true;
     },
 
     isEventTargeted: function(event) {

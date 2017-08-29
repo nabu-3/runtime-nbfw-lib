@@ -12,6 +12,7 @@ Nabu.UI.Tree = function(object, params)
 {
     this.events = new Nabu.EventPool();
     this.container = object;
+    this.dadContainer = null;
     this.params = params;
 
     try {
@@ -37,6 +38,32 @@ Nabu.UI.Tree.prototype = {
 
     init: function()
     {
+        var Self = this;
+
+        var dad = $(this.container).find('.tree');
+        if (dad.length > 0 && dad[0].dadContainer && dad[0].dadContainer instanceof Nabu.DragAndDrop.Container) {
+            this.dadContainer = dad[0].dadContainer;
+            this.dadContainer.addEventListener(new Nabu.Event({
+                onBeforeDrop: function(e) {
+                    if (Self.events.fireEvent('onBeforeMove', Self, e.params)) {
+                        console.log("onBeforeMove");
+                        return true;
+                    }
+                    return false;
+                },
+                onDrop: function(e) {
+                    if (Self.events.fireEvent('onMove', Self, e.params)) {
+                        return Self.onMove(e.params);
+                    } else {
+                        return false;
+                    }
+                },
+                onError: function(e) {
+                    Self.events.fireEvent('onError', Self, e.params);
+                    console.log("onError");
+                }
+            }))
+        }
         this.initEditButtonStyle();
         this.initCollapseButtons(this.container);
         this.initToolbar();
@@ -296,7 +323,63 @@ Nabu.UI.Tree.prototype = {
         } else {
             console.log("More than one forms found with same identifier");
         }
+    },
+
+    onMove: function(params)
+    {
+        console.log(params);
+        if (typeof this.options.api === 'string' && this.options.api.length > 0) {
+            var dragObject = params.drag;
+            var dragId = dragObject.data('id');
+            if (typeof dragId !== 'undefined') {
+                var url =$.sprintf(this.options.api, dragId);
+                var finalUrl = null;
+                if (params.before !== null) {
+                    var beforeId = params.before.data('id');
+                    if (typeof beforeId !== 'undefined') {
+                        finalUrl = url + '?action=move&id=' + dragId + '&before=' + beforeId;
+                    }
+                }
+                if (finalUrl === null && params.after !== null) {
+                    var afterId = params.after.data('id');
+                    if (typeof afterId !== 'undefined') {
+                        finalUrl = url + '?action=move&id=' + dragId + '&after=' + afterId;
+                    }
+                }
+                if (params.before === null && params.after === null) {
+                    if (params.parent !== null) {
+                        var parentId = $(params.parent).data('id');
+                        if (typeof parentId !== 'undefined') {
+                            finalUrl = url + '?action=move&id=' + dragId + '&parent=' + parentId;
+                        }
+                    } else {
+                        finalUrl = url + '?action=move&id=' + dragId;
+                    }
+                }
+                if (finalUrl !== null) {
+                    var query = new Nabu.Ajax.Connector(uri, Nabu.Ajax.POST, {
+                        "withCredentials": true,
+                        "contentType": "application/json",
+                        "synchronous": true
+                    });
+                    query.addEventListener(new Nabu.Event({
+                        onLoad: function(e)
+                        {
+
+                        },
+                        onError: function(e)
+                        {
+
+                        }
+                    }));
+                    query.setPostJSON(array(
+
+                    ));
+                    query.execute();
+                }
+            }
+        }
     }
 };
 
-nabu.registerLibrary('Tree', ['Event']);
+nabu.registerLibrary('Tree', ['Ajax', 'Event']);

@@ -312,13 +312,31 @@ Nabu.DragAndDrop.DropContainer.prototype = {
     drop: function(dragObject, x, y)
     {
         if (this.interstitial !== null) {
+            var before = $(dragObject)
             if (dragObject instanceof Nabu.DragAndDrop.DragItem && dragObject.object !== null) {
-                this.object.replaceChild(dragObject.object, this.interstitial);
-                this.interstitial = null;
-            } else {
+                var before = $(this.interstitial).next('[draggable="true"]');
+                var after = $(this.interstitial).prev('[draggable="true"]');
+                var parent = $(this.interstitial).closest('.drag-item');
+                var eventParams = {
+                    "drag": dragObject.object,
+                    "drop": this.object,
+                    "parent": parent.length > 0 ? parent[0] : null,
+                    "before": before.length > 0 ? before[0] : null,
+                    "after": after.length > 0 ? after[0] : null
+                };
+                if (this.container.events.fireEvent('onBeforeDrop', this.container, eventParams)) {
+                    this.object.replaceChild(dragObject.object, this.interstitial);
+                    this.interstitial = null;
+                    this.container.events.fireEvent('onDrop', this.container, eventParams);
+                }
+            }
+            if (this.interstitial !== null) {
                 this.object.removeChild(this.interstitial);
                 this.interstitial = null;
+                this.container.events.fireEvent('onError', this.container);
             }
+        } else {
+            this.container.events.fireEvent('onError', this.container);
         }
     },
 
