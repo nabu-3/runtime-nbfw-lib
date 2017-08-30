@@ -45,11 +45,7 @@ Nabu.UI.Tree.prototype = {
             this.dadContainer = dad[0].dadContainer;
             this.dadContainer.addEventListener(new Nabu.Event({
                 onBeforeDrop: function(e) {
-                    if (Self.events.fireEvent('onBeforeMove', Self, e.params)) {
-                        console.log("onBeforeMove");
-                        return true;
-                    }
-                    return false;
+                    return Self.events.fireEvent('onBeforeMove', Self, e.params);
                 },
                 onDrop: function(e) {
                     if (Self.events.fireEvent('onMove', Self, e.params)) {
@@ -81,7 +77,7 @@ Nabu.UI.Tree.prototype = {
                 })
             ;
         } else if (this.params.editButton === 'line') {
-            $(this.container).find('.tree-level > li > .tree-item')
+            $(this.container).find('.tree-level > .tree-item > .tree-item-caret')
                 .on('click', function(e) {
                     return Self.doEditButtonClick(e);
                 })
@@ -93,7 +89,7 @@ Nabu.UI.Tree.prototype = {
     {
         var Self = this;
         $(container)
-            .find('.tree-item-toolbar > .btn-expand')
+            .find('.tree-item-caret-toolbar > .btn-expand')
                 .on('click', function(e) {
                     e.stopPropagation();
                     var item = $(this).closest('.tree-item');
@@ -175,6 +171,9 @@ Nabu.UI.Tree.prototype = {
 
         if (this.params.editButton === 'line') {
             id = $(e.currentTarget).data('id');
+            if (typeof id === 'undefined') {
+                id = $(e.currentTarget).closest('[data-id]').data('id');
+            }
         } else if (this.params.editButton === 'button') {
             id = $(e.currentTarget).closest('[data-id]').data('id');
         } else {
@@ -222,8 +221,8 @@ Nabu.UI.Tree.prototype = {
             if (current.length > 0) {
                 current.removeClass('hide');
                 myst.addClass('hide');
-                $(this.tree).find('.tree-level > li > .tree-item').removeClass('editing');
-                $(this.tree).find('.tree-level > li > .tree-item[data-id="' + id + '"]').addClass('editing');
+                $(this.tree).find('.tree-level > .tree-item > .tree-item-caret').removeClass('editing');
+                $(this.tree).find('.tree-level > .tree-item[data-id="' + id + '"] > .tree-item-caret').addClass('editing');
             } else {
                 nabu.loadLibrary('Ajax', function() {
                     var ajax = new Nabu.Ajax.Connector(target, 'GET');
@@ -242,8 +241,8 @@ Nabu.UI.Tree.prototype = {
                                     $(this).data('multiform-part', $.sprintf(part, row_id));
                                 });
                             }
-                            $(Self.tree).find('.tree-level > li > .tree-item').removeClass('editing');
-                            $(Self.tree).find('.tree-level > li > .tree-item[data-id="' + (is_new ? row_id : id) + '"]').addClass('editing');
+                            $(Self.tree).find('.tree-level > .tree-item > .tree-item-caret').removeClass('editing');
+                            $(Self.tree).find('.tree-level > .tree-item[data-id="' + (is_new ? row_id : id) + '"] > .tree-item-caret').addClass('editing');
                             Self.events.fireEvent('onLoadEditor', Self, {
                                 id: (is_new ? row_id : id),
                                 container_id: cont_id
@@ -269,7 +268,7 @@ Nabu.UI.Tree.prototype = {
         var selected = [];
 
         $(this.container)
-            .find('.tree-level > li > .tree-item.active')
+            .find('.tree-level > .tree-item.active')
             .each(function(e) {
                 if ($(this).data('id')) {
                     selected.push($(this).data('id'));
@@ -283,8 +282,8 @@ Nabu.UI.Tree.prototype = {
     editItem: function(item_id)
     {
         if (this.tree !== null) {
-            var item = $(this.tree).find('.tree-level > li > .tree-item[data-id="' + item_id + '"]');
-            var flags = item.find('.tree-item-flags');
+            var item = $(this.tree).find('.tree-level > .tree-item[data-id="' + item_id + '"] > .tree-item-caret');
+            var flags = item.find('.tree-item-caret-flags');
             if (flags.find('.edited').length === 0) {
                 $('<i class="fa fa-pencil text-danger edited pull-left"></i>')
                     .appendTo(flags);
@@ -327,40 +326,38 @@ Nabu.UI.Tree.prototype = {
 
     onMove: function(params)
     {
-        console.log(params);
-        if (typeof this.options.api === 'string' && this.options.api.length > 0) {
+        if (typeof this.params.api === 'string' && this.params.api.length > 0) {
             var dragObject = params.drag;
-            var dragId = dragObject.data('id');
+            var dragId = $(dragObject).data('id');
             if (typeof dragId !== 'undefined') {
-                var url =$.sprintf(this.options.api, dragId);
+                var url =$.sprintf(this.params.api, dragId);
                 var finalUrl = null;
                 if (params.before !== null) {
-                    var beforeId = params.before.data('id');
+                    var beforeId = $(params.before).data('id');
                     if (typeof beforeId !== 'undefined') {
-                        finalUrl = url + '?action=move&id=' + dragId + '&before=' + beforeId;
+                        finalUrl = url + '?action=move&before=' + beforeId;
                     }
                 }
                 if (finalUrl === null && params.after !== null) {
-                    var afterId = params.after.data('id');
+                    var afterId = $(params.after).data('id');
                     if (typeof afterId !== 'undefined') {
-                        finalUrl = url + '?action=move&id=' + dragId + '&after=' + afterId;
+                        finalUrl = url + '?action=move&after=' + afterId;
                     }
                 }
                 if (params.before === null && params.after === null) {
                     if (params.parent !== null) {
                         var parentId = $(params.parent).data('id');
                         if (typeof parentId !== 'undefined') {
-                            finalUrl = url + '?action=move&id=' + dragId + '&parent=' + parentId;
+                            finalUrl = url + '?action=append&parent=' + parentId;
                         }
                     } else {
-                        finalUrl = url + '?action=move&id=' + dragId;
+                        finalUrl = url + '?action=append';
                     }
                 }
                 if (finalUrl !== null) {
-                    var query = new Nabu.Ajax.Connector(uri, Nabu.Ajax.POST, {
+                    var query = new Nabu.Ajax.Connector(finalUrl, Nabu.Ajax.POST, {
                         "withCredentials": true,
-                        "contentType": "application/json",
-                        "synchronous": true
+                        "contentType": "application/json"
                     });
                     query.addEventListener(new Nabu.Event({
                         onLoad: function(e)
@@ -372,9 +369,7 @@ Nabu.UI.Tree.prototype = {
 
                         }
                     }));
-                    query.setPostJSON(array(
-
-                    ));
+                    query.setPostJSON({});
                     query.execute();
                 }
             }

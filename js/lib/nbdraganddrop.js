@@ -92,7 +92,6 @@ Nabu.DragAndDrop.Container.prototype = {
             var dropObject = this.getBestQualifiedDropObject(e.clientX, e.clientY);
             if (dropObject instanceof Nabu.DragAndDrop.DropContainer) {
                 if (this.dropContainer instanceof Nabu.DragAndDrop.DropContainer && this.dropContainer !== dropObject) {
-                    console.log('remove Drop Container');
                     this.dropContainer.dragOut(e);
                     this.dropContainer = dropObject;
                 }
@@ -148,7 +147,6 @@ Nabu.DragAndDrop.DragItem = function(container, object, params)
     this.container = container;
     this.object = object;
     this.object.dragItem = this;
-    this.item = null;
     this.touchSupport = 'ontouchend' in document;
     this.dragging = false;
     this.draginit = false;
@@ -176,19 +174,13 @@ Nabu.DragAndDrop.DragItem.prototype = {
     {
         var Self = this;
         if (this.object !== false) {
-            var find = $(this.object).find('.drag-item');
-            if (find.length > 0) {
-                this.item = find.get(0);
-            } else {
-                this.item = this.object;
-            }
             if (this.touchSupport) {
-                $(this.item).on('touchstart', function(e) {
+                $(this.object).on('touchstart', function(e) {
                     console.log('DragItem.touchstart');
                     return Self.dragStart(e);
                 });
             } else {
-                $(this.item).on('mousedown', function(e) {
+                $(this.object).on('mousedown', function(e) {
                     return Self.dragStart(e);
                 });
             }
@@ -335,8 +327,6 @@ Nabu.DragAndDrop.DropContainer.prototype = {
                 this.interstitial = null;
                 this.container.events.fireEvent('onError', this.container);
             }
-        } else {
-            this.container.events.fireEvent('onError', this.container);
         }
     },
 
@@ -388,7 +378,11 @@ Nabu.DragAndDrop.DropContainer.prototype = {
 
         if (best_match.object !== null) {
             if (best_match.object !== this.interstitial) {
-                this.object.insertBefore(this.interstitial, best_match.object.nextSibling);
+                if (y < (best_match.bounds.y + (best_match.bounds.height / 2))) {
+                    this.object.insertBefore(this.interstitial, best_match.object);
+                } else {
+                    this.object.insertBefore(this.interstitial, best_match.object.nextSibling);
+                }
             }
         } else if (best_before.object !== null) {
             this.object.insertBefore(this.interstitial, best_before.object.nextSibling);
