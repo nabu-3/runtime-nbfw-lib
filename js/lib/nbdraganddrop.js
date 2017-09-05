@@ -12,7 +12,7 @@ Nabu.DragAndDrop.Container = function(object, params)
 {
     this.events = new Nabu.EventPool();
     this.object = object;
-    this.inner = $(object).find('.drag-caret').get(0);
+    this.inner = $(object).find('.dad-inner').get(0);
     this.object.dadContainer = this;
     this.touchSupport = 'ontouchend' in document;
     this.dropObjects = new Array();
