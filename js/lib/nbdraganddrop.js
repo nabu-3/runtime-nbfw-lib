@@ -88,6 +88,7 @@ Nabu.DragAndDrop.Container.prototype = {
     dragMove: function(e)
     {
         if (this.dragObject !== null) {
+            //$(this.object).find('.drag-over').removeClass('drag-over');
             this.dragObject.dragMove(e);
             var dropObject = this.getBestQualifiedDropObject(e.clientX, e.clientY);
             if (dropObject instanceof Nabu.DragAndDrop.DropContainer) {
@@ -109,6 +110,7 @@ Nabu.DragAndDrop.Container.prototype = {
             if (this.dropContainer !== null) {
                 this.dropContainer.drop(this.dragObject, e.clientX, e.clientY);
             }
+            //$(this.object).find('.drag-over').removeClass('drag-over');
             this.dragObject = null;
             return retval;
         }
@@ -260,6 +262,7 @@ Nabu.DragAndDrop.DropContainer = function(container, object, params)
     this.object.dropContainer = this;
     this.touchSupport = 'ontouchend' in document;
     this.interstitial = null;
+    this.dragObject = null;
 
     this.init();
 };
@@ -299,6 +302,11 @@ Nabu.DragAndDrop.DropContainer.prototype = {
             this.object.removeChild(this.interstitial);
             this.interstitial = null;
         }
+
+        if (this.dragObject !== null) {
+            $(this.dragObject).removeClass('drag-over');
+            this.dragObject = null;
+        }
     },
 
     drop: function(dragObject, x, y)
@@ -328,13 +336,17 @@ Nabu.DragAndDrop.DropContainer.prototype = {
                 this.container.events.fireEvent('onError', this.container);
             }
         }
+        if (this.dragObject !== null) {
+            $(this.dragObject).removeClass('drag-over');
+            this.dragObject = null;
+        }
     },
 
     moveInterstitial: function(x, y)
     {
         if (this.interstitial === null) {
             this.interstitial = document.createElement('DIV');
-            this.interstitial.className = 'interstitial';
+            this.interstitial.className = 'dad-interstitial';
             var drag = this.container.dragObject;
             var bounds = drag.object.getBoundingClientRect();
             this.interstitial.style.width = "100%";
@@ -383,11 +395,19 @@ Nabu.DragAndDrop.DropContainer.prototype = {
                 } else {
                     this.object.insertBefore(this.interstitial, best_match.object.nextSibling);
                 }
+                this.dragObject = best_match.object;
+                $(best_match.object).addClass('drag-over');
             }
         } else if (best_before.object !== null) {
             this.object.insertBefore(this.interstitial, best_before.object.nextSibling);
+            this.dragObject = best_before.object;
+            $(best_before.object).addClass('drag-over');
         } else if (best_after.object !== null) {
             this.object.insertBefore(this.interstitial, best_after.object);
+            this.dragObject = best_after.object;
+            $(best_after.object).addClass('drag-over');
+        } else {
+            console.log("No drag over");
         }
     }
 };
