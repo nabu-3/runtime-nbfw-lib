@@ -404,6 +404,8 @@ $.fn.nabuDragAndDrop = function(options)
                     }
                 }));
             });
+
+            $(this).triggerHandler('nabu.DAD.afterInitContainer');
         });
     }
 };
