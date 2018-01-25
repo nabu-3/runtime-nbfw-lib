@@ -67,7 +67,7 @@ Nabu.UI.Table.prototype = {
 
         $(this.container).find('.table-pager').remove();
         if (this.params.tablePager && this.params.tableSize > 0) {
-            var rows = $(this.container).find('tbody > tr:not(.table-empty-row)');
+            var rows = $(this.container).find('tbody > tr:not([data-type="empty"])');
             var buttons = Math.ceil(rows.length / this.params.tableSize);
             var from_page = this.currentPage > 2 ? this.currentPage - 2 : 1;
             var to_page = from_page + 4 > buttons ? buttons : from_page + 4;
@@ -255,6 +255,7 @@ Nabu.UI.Table.prototype = {
 
             if (is_new) {
                 var row_id =  'new_' + (new Date().getTime()) + '' + Math.floor(Math.random() * 900) + 100;
+                this.hideEmptyMessage();
                 this.appendRow(row_id);
                 this.initSelectableCheckbox();
                 this.initEditButtonStyle();
@@ -459,6 +460,11 @@ Nabu.UI.Table.prototype = {
         } else {
             console.log("More than one forms found with same identifier");
         }
+    },
+
+    hideEmptyMessage: function()
+    {
+        $(this.container).find('tbody > tr[data-type="empty"]').addClass('hide');
     }
 };
 
