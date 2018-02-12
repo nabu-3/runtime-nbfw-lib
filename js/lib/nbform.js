@@ -1109,6 +1109,27 @@ Nabu.UI.Form.prototype = {
         }
     },
 
+    getSubmitButton: function(e)
+    {
+        var submit_object = this.submit_object !== null ? this.submit_object : (e.explicitOriginalTarget ? e.explicitOriginalTarget : null);
+        if (submit_object === null || (submit_object.attributes['type'] && submit_object.attributes['type'].value !== 'submit')) {
+            for (var field in this.fields) {
+                var field = this.fields[field].object;
+                if (field.attributes) {
+                    if ((field.attributes['type'] && field.attributes['type'].value==='submit') ||
+                        (field.attributes['action'] && field.attributes['action'].value==='submit')
+                       )
+                    {
+                        submit_object = field;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return submit_object;
+    },
+
     onSubmit: function(e)
     {
         if (this.events.isEventTargeted('onBeforeSubmit')) {
@@ -1119,26 +1140,24 @@ Nabu.UI.Form.prototype = {
             this.form.action = this.formaction;
         }
         this.formaction = null;
+        var btn_submit = this.getSubmitButton(e);
         if (this.params.ajax === true) {
-            var submit_object = this.submit_object !== null ? this.submit_object : (e.explicitOriginalTarget ? e.explicitOriginalTarget : null);
-            if (submit_object === null || (submit_object.attributes['type'] && submit_object.attributes['type'].value !== 'submit')) {
-                for (var field in this.fields) {
-                    var field = this.fields[field].object;
-                    if (field.attributes) {
-                        if ((field.attributes['type'] && field.attributes['type'].value==='submit') ||
-                            (field.attributes['action'] && field.attributes['action'].value==='submit')
-                           )
-                        {
-                            submit_object = field;
-                            break;
-                        }
-                    }
-                }
-            }
-            this.submitByAjax(submit_object);
+            this.submitByAjax(btn_submit);
             e.stopPropagation();
             return false;
         } else {
+            var data = $(this.form).data();
+            var uri = (btn_submit.attributes && btn_submit.attributes['formaction'])
+                    ? (btn_submit.attributes['formaction'].value)
+                    : (data.actionTemplate && data.actionTemplate.length > 0
+                       ? ((data.id)
+                          ? $.sprintf(data.actionTemplate, data.id)
+                          : $.sprintf(data.actionTemplate, '')
+                         )
+                       : this.form.action
+                      )
+            ;
+            $(this.form).attr('action', uri);
             $(this.container).addClass('sending');
             return true;
         }
