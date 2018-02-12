@@ -13,6 +13,7 @@ Nabu.UI.Table = function(object, params)
     this.events = new Nabu.EventPool();
     this.container = object;
     this.params = params;
+    this.currentPage = 1;
 
     try {
         this.table = $(object).find('table').get(0);
@@ -62,33 +63,78 @@ Nabu.UI.Table.prototype = {
 
     initPager: function()
     {
+        var Self = this;
+
+        $(this.container).find('.table-pager').remove();
         if (this.params.tablePager && this.params.tableSize > 0) {
-            var pager = $(this.container).find('.table-pager');
-            var rows = $(this.container).find('tbody > tr');
-            if (pager.length === 0) {
+            var rows = $(this.container).find('tbody > tr:not([data-type="empty"])');
+            var buttons = Math.ceil(rows.length / this.params.tableSize);
+            var from_page = this.currentPage > 2 ? this.currentPage - 2 : 1;
+            var to_page = from_page + 4 > buttons ? buttons : from_page + 4;
+            from_page = to_page - from_page < 5 ? (to_page > 4 ? to_page - 4 : 1) : from_page;
+            if (buttons > 1) {
                 var html =
-                    "<div class=\"table-pager hide\">" +
+                    "<div class=\"table-pager\">" +
                         "<nav aria-label=\"Page navigation\">" +
                             "<ul class=\"pagination\">" +
-                                "<li><a href=\"#\" aria-label=\"Previous\"><span aria-hidden=\"true\">&laquo;</span></a></li>" +
-                                "<li><a href=\"#\">1</a></li>" +
-                                "<li><a href=\"#\">2</a></li>" +
-                                "<li><a href=\"#\">3</a></li>" +
-                                "<li><a href=\"#\">4</a></li>" +
-                                "<li><a href=\"#\">5</a></li>" +
-                                "<li><a href=\"#\" aria-label=\"Next\"><span aria-hidden=\"true\">&raquo;</span></a></li>" +
+                                "<li" + (this.currentPage === 1 ? ' class="disabled"' : '') + "><a href=\"#\" aria-label=\"Previous\"><span aria-hidden=\"true\">&laquo;</span></a></li>";
+                for (var i = from_page; i <= to_page; i++) {
+                    html +=     "<li" + (i === this.currentPage ? ' class="active"' : '') + " data-page=\"" + i + "\"><a href=\"#\">" + i + "</a></li>";
+                }
+                html +=         "<li" + (this.currentPage === buttons ? ' class="disabled"' : '') + "><a href=\"#\" aria-label=\"Next\"><span aria-hidden=\"true\">&raquo;</span></a></li>" +
                             "</ul>" +
                         "</nav>" +
                     "</div>"
                 ;
                 $(this.container).append(html);
-                pager = $(this.container).find('.table-pager');
-            } else {
-                pager.addClass("hide");
-            }
 
-            if (this.params.tableSize < rows.length) {
-                pager.removeClass("hide");
+                pager = $(this.container).find('.table-pager');
+                if (this.currentPage > 1) {
+                    pager.find('li:first-child > a')
+                        .on('click',
+                            function(e) {
+                                e.preventDefault();
+                                if (Self.currentPage > 1) {
+                                    Self.currentPage--;
+                                    Self.initPager();
+                                }
+                            }
+                        )
+                    ;
+                }
+                if (this.currentPage < buttons) {
+                    pager.find('li:last-child > a')
+                        .on('click',
+                            function(e) {
+                                e.preventDefault();
+                                if (Self.currentPage < buttons) {
+                                    Self.currentPage++;
+                                    Self.initPager();
+                                }
+                            }
+                        )
+                    ;
+                }
+                pager.find('li[data-page]')
+                    .on('click',
+                        function(e) {
+                            e.preventDefault();
+                            Self.currentPage = $(this).data('page');
+                            Self.initPager();
+                        }
+                    )
+                ;
+
+                for (var i = 0; i < rows.length; i++) {
+                    var page = Math.ceil((i + 1) / this.params.tableSize);
+                    if (page === this.currentPage) {
+                        $(rows[i]).removeClass('hide');
+                    } else {
+                        $(rows[i]).addClass('hide');
+                    }
+                }
+            } else {
+                rows.removeAttr('hide');
             }
         }
     },
@@ -209,6 +255,7 @@ Nabu.UI.Table.prototype = {
 
             if (is_new) {
                 var row_id =  'new_' + (new Date().getTime()) + '' + Math.floor(Math.random() * 900) + 100;
+                this.hideEmptyMessage();
                 this.appendRow(row_id);
                 this.initSelectableCheckbox();
                 this.initEditButtonStyle();
@@ -413,6 +460,11 @@ Nabu.UI.Table.prototype = {
         } else {
             console.log("More than one forms found with same identifier");
         }
+    },
+
+    hideEmptyMessage: function()
+    {
+        $(this.container).find('tbody > tr[data-type="empty"]').addClass('hide');
     }
 };
 

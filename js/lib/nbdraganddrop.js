@@ -245,7 +245,10 @@ Nabu.DragAndDrop.DragItem.prototype = {
                 this.dragAnchor = null;
             }
             $(this.object).removeClass('dragging');
-            $(this.object).removeAttr('style');
+            this.object.style.width = null;
+            this.object.style.height = null;
+            this.object.style.left = null;
+            this.object.style.top = null;
             this.dragging = false;
             e.preventDefault();
             e.stopPropagation();

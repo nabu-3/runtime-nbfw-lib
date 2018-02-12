@@ -148,6 +148,22 @@ Nabu.prototype = {
         return true;
     },
 
+    getStyle: function (obj, attr)
+    {
+        var strValue = "";
+
+        if(document.defaultView && document.defaultView.getComputedStyle) {
+            strValue = document.defaultView.getComputedStyle(obj, "").getPropertyValue(attr);
+        } else if(obj.currentStyle) {
+            attr = attr.replace(/\-(\w)/g, function (strMatch, p1) {
+                return p1.toUpperCase();
+            });
+            strValue = obj.currentStyle[attr];
+        }
+
+        return strValue;
+    },
+
     getCookie: function(name) {
 
         var list = document.cookie.split(";");
