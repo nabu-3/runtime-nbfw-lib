@@ -28,7 +28,7 @@ Nabu.UI.Select.prototype = {
                 Self.caption.innerText = this.innerText;
                 $(this).siblings('.active').removeClass('active');
                 $(this).addClass('active');
-                $(Self.container).trigger('change.nb.select', {option: id});
+                $(Self.container).trigger('change.select.nabu', {option: id});
             });
         }
     }
