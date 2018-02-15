@@ -517,6 +517,48 @@ function nbBootstrapInputGroups(container)
     }
 }
 
+$.fn.nabuReflect = function(options)
+{
+    var doReflect = function(opts, object, id) {
+        var target = $(opts.reflect);
+        target.each(function() {
+            var Self = this;
+            if (this.hasAttribute('data-refresh')) {
+                var url = $.sprintf($(this).data('refresh'), id);
+                var refresh = new Nabu.Ajax.Connector(url, 'GET');
+                refresh.addEventListener(new Nabu.Event({
+                    onLoad: function(e) {
+                        console.log(e.params.text);
+                        Self.innerHTML = e.params.text;
+                        nabu.callJavaScript(Self);
+                        nbBootstrapToggleAll(Self);
+                    }
+                }));
+                refresh.execute();
+            }
+        });
+    };
+
+    return this.each(function() {
+        var opts = $.extend({}, $.fn.nabuReflect.defaults, options);
+        var data = $(this).data();
+        opts = $.extend({}, opts, data);
+        if (this.hasAttribute('data-toggle') && $(this).data('toggle') === 'nabu-select' && this.hasAttribute('data-reflect')) {
+            $(this).on('change.select.nabu', function(e, params) {
+                doReflect(opts, this, params.option);
+            });
+        }
+    });
+};
+
+$.fn.nabuReflect.defaults = {};
+
+function nbBootstrapReflect(container)
+{
+    var selectors = $(container).find('[data-reflect]');
+    selectors.nabuReflect();
+}
+
 function nbBootstrapToggleAll(container)
 {
     nbBootstrapDADs(container);
@@ -529,6 +571,7 @@ function nbBootstrapToggleAll(container)
     nbBootstrapTables(container);
     nbBootstrapTrees(container);
     nbBootstrapForms(container);
+    nbBootstrapReflect(container);
     nbBootstrapMultiForms(container);
 
     nabuBootstrap.runLoaders(container);
