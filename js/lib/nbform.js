@@ -62,6 +62,7 @@ Nabu.UI.Form.prototype = {
             }
 
             this.locateFields(recall);
+            this.validateForm();
 
             if (!recall) {
                 setTimeout(function() { Self.init(true) }, 1000);
@@ -166,9 +167,9 @@ Nabu.UI.Form.prototype = {
                 case "email":
                 case "password":
                 case "file":
-                    $(obj).on('change', function(e) { return Self.onChangeField(e.originalEvent); })
-                          .on('blur', function(e) { return Self.onBlurField(e.originalEvent); })
-                          .on('focus', function(e) { return Self.onFocusField(e.originalEvent); })
+                    $(obj).on('change', function(e) { return Self.onChangeField(e.originalEvent ? e.originalEvent : e); })
+                          .on('blur', function(e) { return Self.onBlurField(e.originalEvent ? e.originalEvent : e); })
+                          .on('focus', function(e) { return Self.onFocusField(e.originalEvent ? e.originalEvent : e); })
                     ;
                     this.applyPlaceholder(obj, false);
                     break;
@@ -176,35 +177,35 @@ Nabu.UI.Form.prototype = {
                 case "submit":
                 case "image":
                 case "checkbox":
-                    $(obj).on('click', function(e) { return Self.onClickField(e.originalEvent); });
+                    $(obj).on('click', function(e) { return Self.onClickField(e.originalEvent ? e.originalEvent : e); });
                     break;
                 case "radio":
-                    $(obj).on('click', function(e) { return Self.onClickField(e.originalEvent); });
+                    $(obj).on('click', function(e) { return Self.onClickField(e.originalEvent ? e.originalEvent : e); });
                     if (obj.checked) {
                         $(obj.parentElement).addClass(this.active_class);
                     }
                     break;
                 case "hidden":
-                    $(obj).on('change', function(e) { return Self.onChangeField(e.originalEvent); });
+                    $(obj).on('change', function(e) { return Self.onChangeField(e.originalEvent ? e.originalEvent : e); });
                     break;
                 default:
-                    $(obj).on('blur', function(e) { return Self.onBlurField(e.originalEvent); });
+                    $(obj).on('blur', function(e) { return Self.onBlurField(e.originalEvent ? e.originalEvent : e); });
             }
             if (this.params.validation === 'live') {
-                $(obj).on('keyup', function(e) { return Self.onKeyUp(e.originalEvent); });
+                $(obj).on('keyup', function(e) { return Self.onKeyUp(e.originalEvent ? e.originalEvent : e); });
             }
         } else if (obj instanceof HTMLTextAreaElement) {
-            $(obj).on('change', function(e) { return Self.onChangeField(e.originalEvent); })
-                  .on('blur', function(e) { return Self.onBlurField(e.originalEvent); })
-                  .on('focus', function(e) { return Self.onFocusField(e.originalEvent); })
+            $(obj).on('change', function(e) { return Self.onChangeField(e.originalEvent ? e.originalEvent : e); })
+                  .on('blur', function(e) { return Self.onBlurField(e.originalEvent ? e.originalEvent : e); })
+                  .on('focus', function(e) { return Self.onFocusField(e.originalEvent ? e.originalEvent : e); })
             ;
             if (this.params.validation === 'live') {
-                $(obj).on('keyup', function(e) { return Self.onKeyUp(e.originalEvent); });
+                $(obj).on('keyup', function(e) { return Self.onKeyUp(e.originalEvent ? e.originalEvent : e); });
             }
         } else if (obj instanceof HTMLButtonElement) {
-            $(obj).on('click', function(e) { return Self.onClickField(e.originalEvent); });
+            $(obj).on('click', function(e) { return Self.onClickField(e.originalEvent ? e.originalEvent : e); });
         } else {
-            $(obj).on('blur', function(e) { return Self.onBlurField(e.originalEvent); });
+            $(obj).on('blur', function(e) { return Self.onBlurField(e.originalEvent ? e.originalEvent : e); });
         }
     },
 
@@ -884,6 +885,17 @@ Nabu.UI.Form.prototype = {
         return false;
     },
 
+    reset: function()
+    {
+        this.form.reset();
+        if (this.fields !== null && this.fields.length > 0) {
+            for (var i in this.fields) {
+                this.evaluateField(i);
+            }
+        }
+        this.validateForm();
+    },
+
     refresh: function()
     {
         this.form.submit();
@@ -1215,7 +1227,9 @@ Nabu.UI.Form.prototype = {
 
         if (!field.inClickForm) {
             field.inClickForm = true;
-            if (field.attributes['type'] && field.attributes['type'].value.toLowerCase() === 'submit') this.submit_object = field;
+            if (field.attributes['type'] && field.attributes['type'].value.toLowerCase() === 'submit') {
+                this.submit_object = field;
+            }
 
             var trigger = this.validateField(field.name);
             this.setFieldStatusClass(field.name, trigger);
