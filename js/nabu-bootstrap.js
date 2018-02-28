@@ -528,7 +528,6 @@ $.fn.nabuReflect = function(options)
                 var refresh = new Nabu.Ajax.Connector(url, 'GET');
                 refresh.addEventListener(new Nabu.Event({
                     onLoad: function(e) {
-                        console.log(e.params.text);
                         Self.innerHTML = e.params.text;
                         nabu.callJavaScript(Self);
                         nbBootstrapToggleAll(Self);
