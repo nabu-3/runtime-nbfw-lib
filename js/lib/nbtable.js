@@ -273,17 +273,21 @@ Nabu.UI.Table.prototype = {
 
             var current = is_new ? [] : container.find('[id=' + this.params.editorContainer + '_' + id + ']');
             if (current.length > 0) {
+                var cont_id = Self.params.editorContainer + '_' + (is_new ? row_id : id);
                 current.removeClass('hide');
                 myst.addClass('hide');
                 $(this.table).find('tr').removeClass('editing');
                 $(this.table).find('tr[data-id="' + id + '"]').addClass('editing');
+                Self.events.fireEvent('onShownEditor', Self, {
+                    id: (is_new ? row_id : id),
+                    container_id: cont_id
+                });
             } else {
                 nabu.loadLibrary('Ajax', function() {
                     var ajax = new Nabu.Ajax.Connector(target, 'GET');
                     ajax.addEventListener(new Nabu.Event({
                         onLoad: function(e) {
-                            var cont_id = Self.params.editorContainer + '_'
-                                        + (is_new ? row_id : id);
+                            var cont_id = Self.params.editorContainer + '_' + (is_new ? row_id : id);
                             var div = document.createElement('DIV');
                             div.id = cont_id;
                             div.innerHTML = e.params.text;
@@ -457,8 +461,8 @@ Nabu.UI.Table.prototype = {
             } else {
                 console.log("Nabu.Form object not found");
             }
-        } else {
-            console.log("More than one forms found with same identifier");
+        } else if ($form.length > 1) {
+            console.log("More than one forms found with same identifier [" + form_id + "]");
         }
     },
 

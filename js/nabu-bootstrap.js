@@ -45,6 +45,10 @@ $.fn.nabuTable = function(options)
             onLoadEditor: function(e) {
                 nbBootstrapToggleAll('#' + e.params.container_id);
                 Self.nabuTable.connectForm(e.params.id, '#' + e.params.container_id + ' form');
+                $(Self).trigger('loaded.editor.table.nabu', e.params);
+            },
+            onShownEditor: function(e) {
+                $(Self).trigger('shown.editor.table.nabu', e.params);
             }
         }));
     });
@@ -372,6 +376,22 @@ function nbBootstrapMultiForms(container)
     $(container).find('[data-toggle="nabu-multiform"]').nabuMultiForm();
 }
 
+$.fn.nabuModal = function(options)
+{
+    return this.each(function() {
+
+    });
+}
+
+$.fn.nabuModal.defaults = {
+
+};
+
+function nbBootstrapModals(container)
+{
+    $(container).find('[data-toggle="nabu-modal"]').nabuModal();
+}
+
 $.fn.nabuDragAndDrop = function(options)
 {
     if (typeof options === 'string') {
@@ -572,6 +592,7 @@ function nbBootstrapToggleAll(container)
     nbBootstrapForms(container);
     nbBootstrapReflect(container);
     nbBootstrapMultiForms(container);
+    nbBootstrapModals(container);
 
     nabuBootstrap.runLoaders(container);
 
