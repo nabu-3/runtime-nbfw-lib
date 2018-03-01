@@ -1078,15 +1078,16 @@ Nabu.UI.Form.prototype = {
             });
             query.addEventListener(new Nabu.Event({
                 onLoad: function(response) {
-                    if (Self.params.ajax_target !== null) {
-                        var obj = document.getElementById(Self.params.ajax_target);
+                    console.log(response);
+                    if (data.ajaxTarget) {
+                        var obj = document.getElementById(data.ajaxTarget);
                         if (obj) {
                             $(obj).removeClass('sending');
-                            obj.innerHTML = response;
+                            obj.innerHTML = response.params.text;
                             nabu.callJavaScript(obj);
                         }
                     }
-                    if (Self.params.ajax_onload !== null) {
+                    if (data.ajaxOnload) {
                         window[Self.params.ajax_onload]({
                             "form": Self,
                             "response": response
@@ -1096,7 +1097,7 @@ Nabu.UI.Form.prototype = {
                     Self.events.fireEvent("onSubmit", Self, { "response" : response.params});
                 },
                 onError: function() {
-                    var obj = document.getElementById(Self.params.ajax_target);
+                    var obj = document.getElementById(data.ajaxTarget);
                     if (obj) {
                         $(obj).removeClass('sending');
                     }
