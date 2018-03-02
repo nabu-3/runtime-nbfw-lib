@@ -1078,7 +1078,6 @@ Nabu.UI.Form.prototype = {
             });
             query.addEventListener(new Nabu.Event({
                 onLoad: function(response) {
-                    console.log(response);
                     if (data.ajaxTarget) {
                         var obj = document.getElementById(data.ajaxTarget);
                         if (obj) {
