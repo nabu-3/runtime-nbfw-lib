@@ -49,16 +49,33 @@ Nabu.UI.Table.prototype = {
     {
         var Self = this;
 
-        $(window).resize(function() {
-            var cells = $(Self.container).find('tbody tr[data-type="row"]:first').children();
-            var widths = cells.map(function() {
-                return $(this).width();
-            }).get();
-
-            $(Self.container).find('thead tr').children().each(function (i, v) {
-                $(v).width(widths[i]);
-            });
-        }).resize();
+        $(window).resize(
+            function()
+            {
+                var body_widths =
+                    $(Self.container)
+                        .find('tbody tr[data-type="row"]:first')
+                        .children()
+                        .map(
+                            function() {
+                                return $(this).width();
+                            }
+                        )
+                        .get()
+                ;
+                $(Self.container)
+                    .find('thead tr')
+                    .children()
+                    .each(
+                        function (i, v) {
+                            console.log(v);
+                            console.log(body_widths[i]);
+                            $(v).width(body_widths[i]);
+                        }
+                    )
+                ;
+            }
+        ).resize();
     },
 
     initPager: function()
