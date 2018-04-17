@@ -68,8 +68,6 @@ Nabu.UI.Table.prototype = {
                     .children()
                     .each(
                         function (i, v) {
-                            console.log(v);
-                            console.log(body_widths[i]);
                             $(v).width(body_widths[i]);
                         }
                     )
@@ -210,6 +208,13 @@ Nabu.UI.Table.prototype = {
                     });
                 }
                 if (!data.toggle) {
+                    if (this.tagName.toLowerCase() === 'a') {
+                        var sel = Self.getSelectedItems();
+                        if (sel.length ===1 && data.href) {
+                            $(this).attr('href', $.sprintf(data.href, sel[0]));
+                            return true;
+                        }
+                    }
                     e.preventDefault();
                     return false;
                 } else {
