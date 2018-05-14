@@ -263,15 +263,20 @@ Nabu.UI.Table.prototype = {
         this.editor(id);
     },
 
-    editor: function(id)
+    editor: function(id, clone)
     {
         var Self = this;
         var is_new = ((typeof id) === 'undefined');
+        var clone = ((typeof clone) !== 'undefined' && clone);
 
         var target = is_new
                    ? $.sprintf(this.params.editor, '')
                    : $.sprintf(this.params.editor, id)
         ;
+
+        if (clone) {
+            target += (target.indexOf('?') >= 0 ? '&' : '?') + 'clone';
+        }
 
         if (this.params.editorMode === 'ajax' && this.params.editorContainer.length > 0) {
 
