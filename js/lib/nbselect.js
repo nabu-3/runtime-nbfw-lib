@@ -22,13 +22,14 @@ Nabu.UI.Select.prototype = {
     {
         var Self = this;
         if (this.input.length === 1) {
-            $(this.container).find('.dropdown-menu [data-id]').unbind('click').on('click', function() {
+            $(this.container).find('.dropdown-menu [data-id]').off('click').on('click', function(e) {
                 var id = $(this).data('id');
                 Self.input.val(id);
                 Self.caption.innerText = this.innerText;
                 $(this).siblings('.active').removeClass('active');
                 $(this).addClass('active');
                 $(Self.container).trigger('change.select.nabu', {option: id});
+                e.preventDefault();
             });
         }
     }
