@@ -129,7 +129,7 @@ Nabu.prototype = {
     },
 
     isValidPhoneNumber: function (expression) {
-        var filter = /^[0-9 ]*$/;
+        var filter = /^(\+?[0-9\ \-]{8,}[0-9])$/;
         return filter.test(expression);
     },
 
