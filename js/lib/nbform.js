@@ -129,7 +129,7 @@ Nabu.UI.Form.prototype = {
                     }
                 } else {
                     if (this.fields[field].object !== obj) {
-                        this.fields[field].object = [ this.fields[field].object];
+                        this.fields[field].object = [this.fields[field].object];
                         if (this.fields[field].object.indexOf(obj) < 0) {
                             this.fields[field].object.push(obj);
                         }
