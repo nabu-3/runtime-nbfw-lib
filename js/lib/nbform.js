@@ -294,14 +294,18 @@ Nabu.UI.Form.prototype = {
 
     evaluateField: function(name)
     {
+        var trigger = true;
+
         if (this.fields[name]) {
-            var trigger = this.validateField(name);
+            trigger = this.validateField(name);
             this.setFieldStatusClass(name, trigger);
             this.resetActionsFlag();
             this.applyActionsForField(name);
             this.validateSameFields(name);
             this.validateForm();
-            if (trigger===0) return false;
+            if (trigger===0) {
+                trigger = false;
+            }
         }
         return true;
     },
@@ -345,6 +349,8 @@ Nabu.UI.Form.prototype = {
 
             this.fields[name].trigger = trigger;
         }
+
+        trigger = this.events.fireEvent('onValidateField', this, { "name" : name, "status" : trigger}, trigger);
 
         return trigger;
     },

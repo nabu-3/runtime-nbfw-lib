@@ -138,6 +138,10 @@ $.fn.nabuForm = function(options)
                     }
                 }
                 return $(Self).trigger("response.form.nabu", e.params);
+            },
+            onValidateField: function(e) {
+                $(Self).trigger(e.params.name + ".validate.form.nabu", e.params);
+                return e.params.status;
             }
         }));
     });
