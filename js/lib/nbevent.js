@@ -22,14 +22,15 @@ Nabu.Event.prototype = {
         this.bubble = value;
     },
 
-    fireEvent: function(event, source, params)
+    fireEvent: function(event, source, params, defval)
     {
+        var retval = typeof defval === "undefined" ? true : defval;
+
         if (this.params[event]) {
             var retval = this.params[event]({ source: source, params: params});
-            return (typeof retval === 'undefined' ? true : retval);
         }
 
-        return true;
+        return (typeof retval === 'undefined' ? defval : retval);
     },
 
     isEventTargeted: function(event)
@@ -51,16 +52,16 @@ Nabu.EventPool.prototype = {
         }
     },
 
-    fireEvent: function(event, source, params)
+    fireEvent: function(event, source, params, defval)
     {
-        var retval = true;
+        var retval = typeof defval === "undefined" ? true : defval;
 
         for (var i = 0; i < this.events.length; i++) {
-            retval = this.events[i].fireEvent(event, source, params);
+            retval = this.events[i].fireEvent(event, source, params, defval);
             if (!this.events[i].isBubble()) break;
         }
 
-        return retval;
+        return (typeof retval === 'undefined' ? defval : retval);
     },
 
     isEventTargeted: function(event)
