@@ -292,12 +292,12 @@ Nabu.UI.Form.prototype = {
         return defValue;
     },
 
-    evaluateField: function(name)
+    evaluateField: function(name, bypass)
     {
         var trigger = true;
 
         if (this.fields[name]) {
-            trigger = this.validateField(name);
+            trigger = this.validateField(name, bypass);
             this.setFieldStatusClass(name, trigger);
             this.resetActionsFlag();
             this.applyActionsForField(name);
@@ -323,40 +323,48 @@ Nabu.UI.Form.prototype = {
         return true;
     },
 
-    validateField: function(name)
+    validateField: function(name, bypass)
     {
         var trigger = 3;
 
+        if (typeof bypass === 'undefined') {
+            bypass = false;
+        }
+
         if (this.fields[name]) {
-            if (this.fields[name].object instanceof NodeList || this.fields[name].object instanceof Array) {
-                trigger = 0;
-                for (var i = 0; i < this.fields[name].object.length; i++) {
-                    var field = this.fields[name].object[i];
-                    var aux = this.validateFieldPart(field);
-                    if (aux > trigger) trigger = aux;
+            if (bypass === false) {
+                if (this.fields[name].object instanceof NodeList || this.fields[name].object instanceof Array) {
+                    trigger = 0;
+                    for (var i = 0; i < this.fields[name].object.length; i++) {
+                        var field = this.fields[name].object[i];
+                        var aux = this.validateFieldPart(field);
+                        if (aux > trigger) trigger = aux;
+                    }
+                } else if (this.fields[name].object instanceof HTMLCollection) {
+                    trigger = 0;
+                    for (var i = 0; i < this.fields[name].object.length; i++) {
+                        var field = this.fields[name].object.item(i);
+                        var aux = this.validateFieldPart(field);
+                        if (aux > trigger) trigger = aux;
+                    }
+                } else {
+                    var field = this.fields[name].object;
+                    trigger = this.validateFieldPart(field);
                 }
-            } else if (this.fields[name].object instanceof HTMLCollection) {
-                trigger = 0;
-                for (var i = 0; i < this.fields[name].object.length; i++) {
-                    var field = this.fields[name].object.item(i);
-                    var aux = this.validateFieldPart(field);
-                    if (aux > trigger) trigger = aux;
-                }
+                trigger = this.events.fireEvent('onValidateField', this, { "name" : name, "status" : trigger}, trigger);
             } else {
-                var field = this.fields[name].object;
-                trigger = this.validateFieldPart(field);
+                trigger = this.events.fireEvent('onValidateField', this, { "name" : name, "status" : bypass}, trigger);
             }
 
             this.fields[name].trigger = trigger;
         }
-
-        trigger = this.events.fireEvent('onValidateField', this, { "name" : name, "status" : trigger}, trigger);
 
         return trigger;
     },
 
     validateFieldPart: function(field)
     {
+        var Self = this;
         var trigger = 3;
         var mandatory = (field.attributes && field.attributes['data-form-mandatory'] ? field.attributes['data-form-mandatory'].value : 'none');
         var rule = (field.attributes && field.attributes['data-form-rule'] ? field.attributes['data-form-rule'].value : 'none');
@@ -404,10 +412,31 @@ Nabu.UI.Form.prototype = {
                     }
                     break;
                 case 'checked':
-                    if (!(field instanceof NodeList) && !(field instanceof HTMLCollection) && !(field instanceof Array) && field.checked && field.checked === true) trigger = 2;
+                    if (!(field instanceof NodeList) && !(field instanceof HTMLCollection) && !(field instanceof Array) && field.checked && field.checked === true) {
+                        trigger = 2;
+                    }
                     break;
                 case 'unchecked':
-                    if (!(field instanceof NodeList) && !(field instanceof HTMLCollection) && !(field instanceof Array) && field.checked  && field.checked!== true) trigger = 2;
+                    if (!(field instanceof NodeList) && !(field instanceof HTMLCollection) && !(field instanceof Array) && field.checked  && field.checked!== true) {
+                        trigger = 2;
+                    }
+                    break;
+                case 'groupcheck':
+                    if (field instanceof HTMLInputElement && field.attributes['type'].value == 'checkbox' && parts.length === 3) {
+                        if ($('[data-form-rule="' + rule + '"]:checked').length >= parts[2]) {
+                            trigger = 2;
+                        } else {
+                            trigger = 0;
+                        }
+                        field.formValidationLock = true;
+                        $('[data-form-rule="' + rule + '"]').each(function() {
+                            if (!this.formValidationLock) {
+                                Self.evaluateField(this.attributes['name'].value, trigger);
+                            }
+                        });
+                        field.formValidationLock = false;
+                        console.log("Hola " + trigger);
+                    }
                     break;
             }
         }
