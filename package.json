@@ -1,0 +1,25 @@
+{
+  "name": "runtime-nbfw-lib",
+  "version": "3.0.3",
+  "description": "nabu-3 Runtime JavaScript libraries",
+  "main": "js/nabu.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nabu-3/runtime-nbfw-lib.git"
+  },
+  "keywords": [
+    "nabu-3",
+    "nabu",
+    "javascript",
+    "runtime"
+  ],
+  "author": "Rafael Gutiérrez",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/nabu-3/runtime-nbfw-lib/issues"
+  },
+  "homepage": "https://github.com/nabu-3/runtime-nbfw-lib#readme"
+}
