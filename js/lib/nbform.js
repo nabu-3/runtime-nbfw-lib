@@ -1010,7 +1010,7 @@ Nabu.UI.Form.prototype = {
                                 if (t === 'file') {
                                     var files = (obj.final_files ? obj.final_files : obj.files);
                                     if (files.length == 1) {
-                                        f.append(i, files[0]);
+                                        fd.append(i, files[0]);
                                     } else {
                                         for (var j = 0; j < files.length; j++) {
                                             fd.append(i + '[' + j + ']', files[j]);
