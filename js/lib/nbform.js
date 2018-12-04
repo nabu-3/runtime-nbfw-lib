@@ -138,7 +138,7 @@ Nabu.UI.Form.prototype = {
             } else {
                 this.fields[field] = {object: obj, trigger: 3, actions: null, touched: false, visible: true, enabled: true};
             }
-            if (!(obj instanceof HTMLButtonElement) && !(obj instanceof HTMLInputElement && (obj.type==='button' || obj.type==='submit' || obj.type==='image' || obj.type==='hidden'))) {
+            if (!(obj instanceof HTMLButtonElement) && !(obj instanceof HTMLInputElement && (obj.type==='button' || obj.type==='submit' || obj.type==='image'))) {
                 var trigger = this.validateField(field);
                 this.setFieldStatusClass(field, trigger);
             }
@@ -307,7 +307,7 @@ Nabu.UI.Form.prototype = {
                 trigger = false;
             }
         }
-        return true;
+        return trigger;
     },
 
     fieldFollowsForm: function(obj, type, status)
