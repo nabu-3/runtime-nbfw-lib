@@ -23,15 +23,44 @@ Nabu.UI.Select.prototype = {
         var Self = this;
         if (this.input.length === 1) {
             $(this.container).find('.dropdown-menu [data-id]').off('click').on('click', function(e) {
+                Self.selectItem($(this));
                 var id = $(this).data('id');
-                Self.input.val(id);
-                Self.caption.innerText = this.innerText;
-                $(this).siblings('.active').removeClass('active');
-                $(this).addClass('active');
                 $(Self.container).trigger('change.select.nabu', {option: id});
                 e.preventDefault();
             });
         }
+
+        if (this.input.length > 0) {
+            var id = this.input.val();
+            if (id.length > 0) {
+                var item = $(this.container).find('.dropdown-menu [data-id="' + id + '"]');
+                if (item.length > 0) {
+                    this.selectItem(item);
+                    $(this.container).trigger('init.select.nabu', {option: id});
+                } else {
+                    this.clearSelection();
+                }
+            }
+        }
+    },
+
+    selectItem: function(item)
+    {
+        var id = item.data('id');
+        this.input.val(id);
+        var mask = $(this.container).data('captionMask');
+        var content = item.get(0).innerHTML;
+        this.caption.innerHTML = (typeof mask == 'undefined' ? content : $.sprintf(mask, content));
+        $(item).siblings('.active').removeClass('active');
+        $(item).addClass('active');
+    },
+
+    clearSelection: function()
+    {
+        this.input.removeAttr('value');
+        var html = $(this.container).data('captionDefault');
+        this.caption.innerHTML = (typeof html == 'undefined' ? '' : html);
+        $(this.container).find('.dropdown-menu .active').removeClass('active');
     }
 };
 
