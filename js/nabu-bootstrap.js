@@ -170,18 +170,27 @@ function nbBootstrapForms(container)
 $.fn.nabuFormSelect = function(options)
 {
     return this.each(function() {
-        var opts = $.extend({}, $.fn.nabuFormSelect.defaults, options);
-        var data = $(this).data();
-        opts = $.extend({}, opts, data);
-        var table = new Nabu.UI.Select(this, opts);
+        if (typeof options == 'string') {
+            switch (options) {
+                case 'clearSelection':
+                    if (typeof this.nabuSelect != 'undefined') {
+                        this.nabuSelect.clearSelection();
+                    }
+                    break;
+                default:
+                    console.log('nabuFormSelect unsupported option [' + options + ']');
+            }
+        } else {
+            var opts = $.extend({}, $.fn.nabuFormSelect.defaults, options);
+            var data = $(this).data();
+            opts = $.extend({}, opts, data);
+            var select = new Nabu.UI.Select(this, opts);
+            this.nabuSelect = select;
+        }
     });
 };
 
 $.fn.nabuFormSelect.defaults = {
-    "tableSize": 25,
-    "api": null,
-    "editor": null,
-    "editButton": "line"
 };
 
 function nbBootstrapSelects(container)

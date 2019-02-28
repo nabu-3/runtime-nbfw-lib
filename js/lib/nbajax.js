@@ -141,7 +141,7 @@ Nabu.Ajax.Connector.prototype = {
                         this.request.withCredentials = this.params.withCredentials;
                     }
                 }
-                if (this.method === "POST" || this.method === "DELETE") {
+                if (this.method === "POST" || this.method === "PUT" || this.method === "DELETE") {
                     if (this.params && (typeof this.params.contentType) !== (typeof undefined)) {
                         if (this.params.contentType !== null) {
                             this.setRequestHeader("Content-Type", this.params.contentType);
