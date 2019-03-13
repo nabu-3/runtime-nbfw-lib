@@ -40,7 +40,11 @@ Nabu.UI.Select.prototype = {
                 } else {
                     this.clearSelection();
                 }
+            } else {
+                this.clearSelection();
             }
+        } else {
+            this.clearSelection();
         }
     },
 
