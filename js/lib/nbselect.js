@@ -68,7 +68,7 @@ Nabu.UI.Select.prototype = {
     {
         this.input.removeAttr('value');
         var html = $(this.container).data('captionDefault');
-        this.caption.innerHTML = (typeof html == 'undefined' ? '' : html);
+        this.caption.innerText = (typeof html == 'undefined' ? '' : html);
         $(this.container).find('.dropdown-menu .active').removeClass('active');
     }
 };

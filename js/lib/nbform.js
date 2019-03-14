@@ -435,7 +435,6 @@ Nabu.UI.Form.prototype = {
                             }
                         });
                         field.formValidationLock = false;
-                        console.log("Hola " + trigger);
                     }
                     break;
             }
