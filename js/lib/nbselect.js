@@ -53,17 +53,22 @@ Nabu.UI.Select.prototype = {
         var id = item.data('id');
         this.input.val(id);
         var mask = $(this.container).data('captionMask');
-        var content = item.get(0).innerHTML;
+        var itemObj = item.get(0);
+        var content = (itemObj.tagName.toLowerCase() == 'a' ? item.get(0).innerHTML : item.find('a').get(0).innerHTML);
         this.caption.innerHTML = (typeof mask == 'undefined' ? content : $.sprintf(mask, content));
         $(item).siblings('.active').removeClass('active');
         $(item).addClass('active');
+        var form = $(item).closest('form');
+        if (form.length > 0 && typeof form.get(0).nabuForm != 'undefined') {
+            form.get(0).nabuForm.evaluateField(this.input.attr('name'));
+        }
     },
 
     clearSelection: function()
     {
         this.input.removeAttr('value');
         var html = $(this.container).data('captionDefault');
-        this.caption.innerHTML = (typeof html == 'undefined' ? '' : html);
+        this.caption.innerText = (typeof html == 'undefined' ? '' : html);
         $(this.container).find('.dropdown-menu .active').removeClass('active');
     }
 };
