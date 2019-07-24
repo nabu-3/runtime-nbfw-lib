@@ -142,8 +142,21 @@ $.fn.nabuForm = function(options)
             onValidateField: function(e) {
                 $(Self).trigger(e.params.name + ".validate.form.nabu", e.params);
                 return e.params.status;
+            },
+            onError: function(e) {
+                return $(Self).trigger("error.form.nabu", e.params);
             }
         }));
+        if (data.modalReset && data.modalReset.toLowerCase() == 'yes') {
+            $(this).closest('.modal').on('show.bs.modal', function() {
+                form.reset();
+            });
+        }
+        if (data.modalSynchro && data.modalSynchro.toLowerCase() == 'yes') {
+            $(this).closest('.modal').on('shown.bs.modal', function() {
+                form.validateForm();
+            });
+        }
     });
 };
 

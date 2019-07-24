@@ -19,6 +19,7 @@ Nabu.UI.Form = function(object, params)
     this.maskActions = {id: null, name: null};
     this.submit_object = null;
     this.validate = true;
+    this.sending = false;
 
     this.init();
 };
@@ -492,6 +493,12 @@ Nabu.UI.Form.prototype = {
 
             for (var key in this.fields) {
                 field = this.fields[key];
+                isSubmitButton = false;
+                if (field.object.hasAttribute('type') && field.object.getAttribute('type').toLowerCase() == 'submit') {
+                    isSubmitButton = true;
+                    field.object.removeAttribute('disabled');
+                    $(field.object).removeClass('disabled');
+                }
                 if (field.object instanceof NodeList || field.object instanceof Array) {
                     for (i = 0; i < field.object.length; i++) {
                         if (field.object[i].attributes && field.object[i].attributes !== null && field.object[i].attributes['data-form-follow'] && this.isAvailableField(key)) {
@@ -508,6 +515,10 @@ Nabu.UI.Form.prototype = {
                     if (field.object.attributes !== null && field.object.attributes['data-form-follow'] && this.isAvailableField(key)) {
                         this.fieldFollowsForm(field.object, field.object.attributes['data-form-follow'].value, this.validate);
                     }
+                }
+                if (this.sending && isSubmitButton) {
+                    field.object.setAttribute('disabled', 'disabled');
+                    $(field.object).addClass('disabled');
                 }
             }
 
@@ -1123,6 +1134,8 @@ Nabu.UI.Form.prototype = {
                             obj.innerHTML = response.params.text;
                             nabu.callJavaScript(obj);
                         }
+                    } else {
+                        $(Self.form).removeClass('sending');
                     }
                     if (data.ajaxOnload) {
                         window[Self.params.ajax_onload]({
@@ -1130,15 +1143,24 @@ Nabu.UI.Form.prototype = {
                             "response": response
                         });
                     }
-                    $(Self.form).removeClass('sending');
                     Self.events.fireEvent("onSubmit", Self, { "response" : response.params});
+                    Self.sending = false;
+                    Self.validateForm();
                 },
                 onError: function() {
-                    var obj = document.getElementById(data.ajaxTarget);
-                    if (obj) {
-                        $(obj).removeClass('sending');
+                    if (data.ajaxTarget) {
+                        var obj = document.getElementById(data.ajaxTarget);
+                        if (obj) {
+                            $(obj).removeClass('sending');
+                            obj.innerHTML = response.params.text;
+                            nabu.callJavaScript(obj);
+                        }
+                    } else {
+                        $(Self.form).removeClass('sending');
                     }
                     Self.events.fireEvent("onError", Self);
+                    Self.sending = false;
+                    Self.validateForm();
                 },
                 onUploadProgress: function(source, params) {
                     if (Self.params.ajax_on_upload_progress !== null) {
@@ -1182,9 +1204,12 @@ Nabu.UI.Form.prototype = {
 
     onSubmit: function(e)
     {
-        if (this.events.isEventTargeted('onBeforeSubmit')) {
-            this.events.fireEvent('onBeforeSubmit', this)
+        if (!this.events.fireEvent('onBeforeSubmit', this, null, true) || this.sending)  {
+            return false;
         }
+
+        this.sending = true;
+        this.validateForm();
 
         if (this.formaction !== null && nabu.getNavigatorName() === 'MSIE') {
             this.form.action = this.formaction;
