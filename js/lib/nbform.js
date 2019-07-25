@@ -1043,7 +1043,7 @@ Nabu.UI.Form.prototype = {
                 if ((typeof btn_submit !== 'undefined') && btn_submit !== null && btn_submit.attributes && btn_submit.attributes['name']) {
                     fd.append(btn_submit.attributes['name'].value, null);
                 }
-            /*} else if (json) {
+            } else if (json) {
                 var list = {};
                 for (i in this.fields) {
                     var obj = this.fields[i].object;
@@ -1051,19 +1051,22 @@ Nabu.UI.Form.prototype = {
                         if (obj instanceof HTMLInputElement) {
                             if (obj.attributes['type']) {
                                 var t = obj.attributes['type'].value;
-                                /*if (t === 'file') {
+                                if (t === 'file') {
+                                    console.log('type="file" not supported in JSON mode');
+                                    /*
                                     var files = (obj.final_files ? obj.final_files : obj.files);
                                     for (var j = 0; j < files.length; j++) {
                                         fd.append(i + '[' + j + ']', files[j]);
                                     }
-                                } else*//* if (t !== 'submit' && t !== 'image') {
+                                    */
+                                } else if (t !== 'submit' && t !== 'image') {
                                     if ((t !== 'checkbox' && t !== 'radio') || obj.checked) {
-                                        stream += (stream.length === 0 ? "" : "&") + i + "=" + encodeURIComponent(this.getFieldValue(i));
+                                        list[i] = this.getFieldValue(i);
                                     }
                                 }
                             }
                         } else if (obj instanceof HTMLSelectElement || obj instanceof HTMLTextAreaElement || obj instanceof NodeList || obj instanceof HTMLCollection || obj instanceof Array) {
-                            stream += (stream.length === 0 ? "" : "&") + i + "=" + encodeURIComponent(this.getFieldValue(i));
+                            list[i] = this.getFieldValue();
                         } else if (!(obj instanceof HTMLButtonElement)) {
                             throw "Object not found [" + obj + " " + i + "]";
                         }
@@ -1071,8 +1074,9 @@ Nabu.UI.Form.prototype = {
                 }
 
                 if (btn_submit !== undefined && btn_submit !== null && btn_submit.attributes && btn_submit.attributes['name']) {
-                    stream += (stream.length === 0 ? "" : "&") + btn_submit.attributes['name'].value + "=";
-                }*/
+                    list[btn_submit.attributes['name'].value] = null;
+                }
+                stream = JSON.stringify(list);
             } else {
                 for (i in this.fields) {
                     var field = this.fields[i];
@@ -1081,12 +1085,7 @@ Nabu.UI.Form.prototype = {
                         if (obj instanceof HTMLInputElement) {
                             if (obj.attributes['type']) {
                                 var t = obj.attributes['type'].value;
-                                /*if (t === 'file') {
-                                    var files = (obj.final_files ? obj.final_files : obj.files);
-                                    for (var j = 0; j < files.length; j++) {
-                                        fd.append(i + '[' + j + ']', files[j]);
-                                    }
-                                } else*/ if (t !== 'submit' && t !== 'image') {
+                                if (t !== 'submit' && t !== 'image') {
                                     stream += (stream.length === 0 ? "" : "&") + i + "=" + encodeURIComponent(this.getFieldValue(i));
                                 }
                             }
@@ -1116,7 +1115,7 @@ Nabu.UI.Form.prototype = {
                       )
             ;
 
-            var method = data['ajaxMethod'] ? data['ajaxMethod'] : this.form.method.toUpperCase();
+            var method = data['ajaxMethod'] ? data['ajaxMethod'].toUpperCase() : this.form.method.toUpperCase();
             if (method === 'GET') {
                 uri += (uri !== null && uri.indexOf('?') >= 0 ? "&" : "?") + stream;
             }
@@ -1147,7 +1146,7 @@ Nabu.UI.Form.prototype = {
                     Self.sending = false;
                     Self.validateForm();
                 },
-                onError: function() {
+                onError: function(e) {
                     if (data.ajaxTarget) {
                         var obj = document.getElementById(data.ajaxTarget);
                         if (obj) {
@@ -1158,7 +1157,7 @@ Nabu.UI.Form.prototype = {
                     } else {
                         $(Self.form).removeClass('sending');
                     }
-                    Self.events.fireEvent("onError", Self);
+                    Self.events.fireEvent("onError", Self, e.params);
                     Self.sending = false;
                     Self.validateForm();
                 },

@@ -211,7 +211,7 @@ Nabu.Ajax.Connector.prototype = {
                 this.events.fireEvent("onLoad", this, params);
             } else {
                 if (this.events.isEventTargeted("onError"))
-                    this.events.fireEvent("onError", this, {message: "Error connecting to " + this.url});
+                    this.events.fireEvent("onError", this, { code: httpStatus, message: "Error connecting to " + this.url});
                 else
                     console.log("Error connecting to " + this.url);
             }
