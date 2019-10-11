@@ -57,9 +57,9 @@ Nabu.UI.Form.prototype = {
             this.form = frm;
             frm.nabuForm = this;
             if (!recall) {
-                $(frm).on('submit', function(e) {
-                    return Self.onSubmit(e.originalEvent);
-                });
+                frm.onsubmit = function(e) {
+                    return Self.onSubmit(e);
+                };
             }
 
             this.locateFields(recall);
@@ -204,7 +204,7 @@ Nabu.UI.Form.prototype = {
                 $(obj).on('keyup', function(e) { return Self.onKeyUp(e.originalEvent ? e.originalEvent : e); });
             }
         } else if (obj instanceof HTMLButtonElement) {
-            $(obj).on('click', function(e) { return Self.onClickField(e.originalEvent ? e.originalEvent : e); });
+            obj.onclick = function(e) { return Self.onClickField(e); };
         } else {
             $(obj).on('blur', function(e) { return Self.onBlurField(e.originalEvent ? e.originalEvent : e); });
         }
@@ -1183,6 +1183,10 @@ Nabu.UI.Form.prototype = {
     getSubmitButton: function(e)
     {
         var submit_object = this.submit_object !== null ? this.submit_object : (e.explicitOriginalTarget ? e.explicitOriginalTarget : null);
+        if (submit_object !== null && (typeof $(submit_object).prop('type') == 'undefined' || $(submit_object).prop('type').toLowerCase()!== 'submit')) {
+            var aux = $(submit_object).closest('[type="submit"]');
+            submit_object = (aux.length > 0 ? aux.get(0) : null);
+        }
         if (submit_object === null || (submit_object.attributes['type'] && submit_object.attributes['type'].value !== 'submit')) {
             for (var field in this.fields) {
                 var field = this.fields[field].object;
