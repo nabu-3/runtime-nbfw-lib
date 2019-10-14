@@ -57,9 +57,9 @@ Nabu.UI.Form.prototype = {
             this.form = frm;
             frm.nabuForm = this;
             if (!recall) {
-                $(frm).on('submit', function(e) {
-                    return Self.onSubmit(e.originalEvent);
-                });
+                frm.onsubmit = function(e) {
+                    return Self.onSubmit(e);
+                };
             }
 
             this.locateFields(recall);
@@ -204,7 +204,7 @@ Nabu.UI.Form.prototype = {
                 $(obj).on('keyup', function(e) { return Self.onKeyUp(e.originalEvent ? e.originalEvent : e); });
             }
         } else if (obj instanceof HTMLButtonElement) {
-            $(obj).on('click', function(e) { return Self.onClickField(e.originalEvent ? e.originalEvent : e); });
+            obj.onclick = function(e) { return Self.onClickField(e); };
         } else {
             $(obj).on('blur', function(e) { return Self.onBlurField(e.originalEvent ? e.originalEvent : e); });
         }
@@ -516,7 +516,7 @@ Nabu.UI.Form.prototype = {
                         this.fieldFollowsForm(field.object, field.object.attributes['data-form-follow'].value, this.validate);
                     }
                 }
-                if (this.sending && isSubmitButton) {
+                if (this.sending && isSubmitButton && this.params.ajax) {
                     field.object.setAttribute('disabled', 'disabled');
                     $(field.object).addClass('disabled');
                 }
@@ -982,11 +982,12 @@ Nabu.UI.Form.prototype = {
     {
         var i, stream = "";
         var Self = this;
+        var obj;
 
         if (this.form !== null && this.params.ajax === true) {
 
             if (this.params.ajax_target !== null) {
-                var obj = document.getElementById(this.params.ajax_target);
+                obj = document.getElementById(this.params.ajax_target);
                 if (obj) {
                     $(obj).addClass('sending');
                 } else {
@@ -1012,7 +1013,7 @@ Nabu.UI.Form.prototype = {
                 var fd = new FormData();
 
                 for (i in this.fields) {
-                    var obj = this.fields[i].object;
+                    obj = this.fields[i].object;
                     if (obj !== null) {
                         if (obj instanceof HTMLInputElement) {
                             if (obj.attributes['type']) {
@@ -1046,7 +1047,7 @@ Nabu.UI.Form.prototype = {
             } else if (json) {
                 var list = {};
                 for (i in this.fields) {
-                    var obj = this.fields[i].object;
+                    obj = this.fields[i].object;
                     if (obj !== null) {
                         if (obj instanceof HTMLInputElement) {
                             if (obj.attributes['type']) {
@@ -1080,7 +1081,7 @@ Nabu.UI.Form.prototype = {
             } else {
                 for (i in this.fields) {
                     var field = this.fields[i];
-                    var obj = field.object;
+                    obj = field.object;
                     if (obj !== null) {
                         if (obj instanceof HTMLInputElement) {
                             if (obj.attributes['type']) {
@@ -1104,7 +1105,7 @@ Nabu.UI.Form.prototype = {
 
             var data = $(this.form).data();
 
-            var uri = (btn_submit.attributes && btn_submit.attributes['formaction'])
+            var uri = (typeof btn_submit !== 'undefined' && btn_submit !== null && btn_submit.attributes && btn_submit.attributes['formaction'])
                     ? (btn_submit.attributes['formaction'].value)
                     : (data.actionTemplate && data.actionTemplate.length > 0
                        ? ((data.id)
@@ -1183,6 +1184,10 @@ Nabu.UI.Form.prototype = {
     getSubmitButton: function(e)
     {
         var submit_object = this.submit_object !== null ? this.submit_object : (e.explicitOriginalTarget ? e.explicitOriginalTarget : null);
+        if (submit_object !== null && (typeof $(submit_object).prop('type') == 'undefined' || $(submit_object).prop('type').toLowerCase()!== 'submit')) {
+            var aux = $(submit_object).closest('[type="submit"]');
+            submit_object = (aux.length > 0 ? aux.get(0) : null);
+        }
         if (submit_object === null || (submit_object.attributes['type'] && submit_object.attributes['type'].value !== 'submit')) {
             for (var field in this.fields) {
                 var field = this.fields[field].object;
