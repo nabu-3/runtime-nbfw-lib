@@ -70,6 +70,9 @@ Nabu.UI.Select.prototype = {
         var html = $(this.container).data('captionDefault');
         this.caption.innerText = (typeof html == 'undefined' ? '' : html);
         $(this.container).find('.dropdown-menu .active').removeClass('active');
+        if (this.input.length > 0) {
+            $(this.container).trigger('clear.select.nabu', { prior_value: prior });
+        }
     }
 };
 
