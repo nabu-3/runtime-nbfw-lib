@@ -66,6 +66,7 @@ Nabu.UI.Select.prototype = {
 
     clearSelection: function()
     {
+        var prior = this.input.length > 0 ? this.input.length : null;
         this.input.removeAttr('value');
         var html = $(this.container).data('captionDefault');
         this.caption.innerText = (typeof html == 'undefined' ? '' : html);
