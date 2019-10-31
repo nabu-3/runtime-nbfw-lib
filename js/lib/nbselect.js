@@ -67,11 +67,12 @@ Nabu.UI.Select.prototype = {
     clearSelection: function()
     {
         var prior = this.input.length > 0 ? this.input.length : null;
+        var prev_val = this.input.val();
         this.input.removeAttr('value');
         var html = $(this.container).data('captionDefault');
         this.caption.innerText = (typeof html == 'undefined' ? '' : html);
         $(this.container).find('.dropdown-menu .active').removeClass('active');
-        if (this.input.length > 0) {
+        if (this.input.length > 0 && prev_val.length > 0) {
             $(this.container).trigger('clear.select.nabu', { prior_value: prior });
         }
     }
